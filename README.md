@@ -1,26 +1,24 @@
-# ✂️ ReservaPro v3.0 - Confidentialité & Productivité
+# ✂️ ReservaPro v5.0 - Plateforme Multi-Services Connectée
 
-Version professionnelle avec gestion privée des données clients et outils de rappel automatique.
+Solution professionnelle de réservation automatisée avec portfolio administrable et synchronisation calendrier temps réel.
 
-## 🔒 Confidentialité & Sécurité
-* **Vie Privée** : La liste des réservations est **totalement masquée** pour les visiteurs. Seul l'administrateur peut la consulter après connexion.
-* **Authentification** : Accès admin sécurisé par hachage **SHA-256**.
-* **Zéro Fuite** : Les noms des clients ne sont jamais exposés publiquement.
+## 🚀 Pourquoi cette version ?
+- **Autonomie Totale** : Grâce à l'intégration de la page d'accueil Calendly, vous pouvez ajouter, modifier ou supprimer vos services directement depuis votre compte Calendly sans toucher au code du site.
+- **Expérience Client** : Le client choisit son service (Coupe, Barbe, Soin) et voit instantanément vos disponibilités réelles.
 
-## 🚀 Nouvelles Fonctionnalités
-* 🗓️ **Générateur de Calendrier** : Création automatique de fichiers `.ics` pour synchroniser les agendas clients.
-* 📧 **Workflow Email** : Déclenchement d'un e-mail de confirmation pré-rempli après chaque réservation.
-* 📷 **Portfolio Maîtrisé** : Importation de photos réservée uniquement au propriétaire du site.
-* ✅ **Feedback Client** : Message de confirmation visuel après validation du formulaire.
+## ✨ Fonctionnalités
+- 📅 **Multi-Services** : Gestion de plusieurs types de rendez-vous avec durées variables.
+- 🔐 **Sécurité SHA-256** : Accès administrateur haché pour la gestion du portfolio.
+- 📷 **Galerie Dynamique** : Présentation de vos réalisations avec gestion d'importation simplifiée.
+- 🌓 **Mode Sombre** : Design moderne adaptable.
+- 📍 **Localisation GPS** : Carte interactive pour guider vos clients.
 
-## 🛠️ Utilisation
-1. Ouvrez `index.html`.
-2. Les clients utilisent le formulaire normalement.
-3. Pour voir les rendez-vous ou modifier le portfolio :
-   - Cliquez sur **Login**.
-   - Mot de passe : `admin123`.
+## 🔒 Accès Admin
+1. Cliquez sur **Login**.
+2. Mot de passe : `admin123`.
+3. Une fois connecté, les options d'ajout et de suppression de photos apparaissent.
 
-## 💻 Stack Technique
-- HTML5, CSS3 (Grid/Flexbox).
-- Vanilla JavaScript (ES6+).
-- Web Crypto API pour la sécurité.
+## 🛠️ Stack Technique
+- **Logiciel de réservation** : Calendly (API Inline).
+- **Langages** : HTML5, CSS3, JS Vanilla.
+- **Sécurité** : Web Crypto API.
