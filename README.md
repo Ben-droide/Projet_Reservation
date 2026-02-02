@@ -1,24 +1,18 @@
-# ✂️ ReservaPro v5.0 - Plateforme Multi-Services Connectée
+# ✂️ ReservaPro v6.0 - Cloud & Calendly Professionnel
 
-Solution professionnelle de réservation automatisée avec portfolio administrable et synchronisation calendrier temps réel.
+## 🌟 Points Forts
+- **Calendly Intégré** : Gestion multi-services avec blocage automatique des créneaux Google Calendar.
+- **Stockage Cloudinary** : Vos photos sont stockées dans le cloud, accessibles partout et optimisées.
+- **Sécurité SHA-256** : Administration sécurisée pour le contrôle du contenu.
+- **Interface Adaptive** : Mode sombre et design mobile-first.
 
-## 🚀 Pourquoi cette version ?
-- **Autonomie Totale** : Grâce à l'intégration de la page d'accueil Calendly, vous pouvez ajouter, modifier ou supprimer vos services directement depuis votre compte Calendly sans toucher au code du site.
-- **Expérience Client** : Le client choisit son service (Coupe, Barbe, Soin) et voit instantanément vos disponibilités réelles.
+## 🛠️ Configuration
+1. **Réservations** : Le widget est lié au compte Calendly `benoitrenaux1999`.
+2. **Photos** : Les images sont hébergées sur le cloud `dkfbcedvr`.
+3. **Admin** : Mot de passe `admin123`.
 
-## ✨ Fonctionnalités
-- 📅 **Multi-Services** : Gestion de plusieurs types de rendez-vous avec durées variables.
-- 🔐 **Sécurité SHA-256** : Accès administrateur haché pour la gestion du portfolio.
-- 📷 **Galerie Dynamique** : Présentation de vos réalisations avec gestion d'importation simplifiée.
-- 🌓 **Mode Sombre** : Design moderne adaptable.
-- 📍 **Localisation GPS** : Carte interactive pour guider vos clients.
-
-## 🔒 Accès Admin
-1. Cliquez sur **Login**.
-2. Mot de passe : `admin123`.
-3. Une fois connecté, les options d'ajout et de suppression de photos apparaissent.
-
-## 🛠️ Stack Technique
-- **Logiciel de réservation** : Calendly (API Inline).
-- **Langages** : HTML5, CSS3, JS Vanilla.
-- **Sécurité** : Web Crypto API.
+## 📦 Technologies
+- JavaScript ES6+ & Fetch API
+- Cloudinary Media API
+- Calendly Inline Widget
+- Web Crypto API

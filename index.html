@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservaPro | Gestion Multi-Services</title>
+    <title>ReservaPro | Portfolio Cloud & Calendly</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -35,29 +35,23 @@
         .container.active { display: block; }
 
         .card { background: var(--bg-card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; margin-bottom: 20px; }
-
-        /* --- CALENDLY CONTAINER --- */
         .calendly-card { padding: 0; overflow: hidden; min-height: 750px; }
 
-        /* --- ADMIN --- */
         .admin-only { display: none !important; }
         body.is-admin .admin-only { display: block !important; }
 
-        /* --- PORTFOLIO --- */
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
         .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; }
         .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
 
-        .contact-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media (min-width: 768px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
         .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
     </style>
 </head>
 <body>
 
 <nav>
-    <button onclick="switchTab('booking')" id="btn-booking" class="active">Réservations</button>
+    <button onclick="switchTab('booking')" id="btn-booking" class="active">Réserver</button>
     <button onclick="switchTab('portfolio')" id="btn-portfolio">Portfolio</button>
     <button onclick="switchTab('contact')" id="btn-contact">Contact</button>
     <button onclick="handleLogin()" id="btn-admin"><i class="fa-solid fa-lock"></i> Login</button>
@@ -69,10 +63,6 @@
 </header>
 
 <div id="booking-section" class="container active">
-    <div class="card" style="text-align: center; margin-bottom: 10px;">
-        <h3>Prendre rendez-vous</h3>
-        <p style="font-size: 0.9rem; color: var(--text-sub);">Sélectionnez le service de votre choix ci-dessous.</p>
-    </div>
     <div class="card calendly-card">
         <div class="calendly-inline-widget" 
              data-url="https://calendly.com/benoitrenaux1999?hide_gdpr_banner=1&primary_color=4361ee" 
@@ -84,7 +74,7 @@
 <div id="portfolio-section" class="container">
     <div class="card" style="text-align: center;">
         <h3>Galerie Réalisations</h3>
-        <label for="imageInput" class="admin-only" style="background:var(--success); color:white; padding:10px 20px; border-radius:20px; cursor:pointer; margin-bottom:20px; display:inline-block;">
+        <label for="imageInput" class="admin-only upload-label" style="background:var(--success); color:white; padding:10px 20px; border-radius:20px; cursor:pointer; margin-bottom:20px; display:inline-block;">
             <i class="fa-solid fa-plus"></i> Ajouter une photo
         </label>
         <input type="file" id="imageInput" accept="image/*" style="display:none">
@@ -93,25 +83,24 @@
 </div>
 
 <div id="contact-section" class="container">
-    <div class="contact-grid">
-        <div class="card">
-            <h3>Nos Coordonnées</h3>
-            <p><i class="fa-solid fa-phone" style="color:var(--primary)"></i> 01 23 45 67 89</p>
-            <p><i class="fa-solid fa-location-dot" style="color:var(--primary)"></i> 123 Rue de la Coiffure, Paris</p>
-            <div style="margin-top: 20px;">
-                <a href="#" style="font-size: 1.5rem; margin-right: 15px; color: var(--primary);"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#" style="font-size: 1.5rem; color: var(--primary);"><i class="fa-brands fa-tiktok"></i></a>
-            </div>
-        </div>
-        <div class="map-container">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.2922926156633!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca979a7166707!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1625123456789!5m2!1sfr!2sfr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-        </div>
+    <div class="card">
+        <h3>Coordonnées</h3>
+        <p><i class="fa-solid fa-phone"></i> 01 23 45 67 89</p>
+        <p><i class="fa-solid fa-location-dot"></i> 123 Rue de la Coiffure, Paris</p>
+    </div>
+    <div class="map-container">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.292292615666305!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca97e440e2488!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1645000000000!5m2!1sfr!2sfr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
 </div>
 
 <script>
+    // --- CONFIG CLOUDINARY ---
+    const CLOUD_NAME = "dkfbcedvr";
+    const UPLOAD_PRESET = "VOTRE_PRESET_NAME"; // <-- REMPLACE-MOI
+    const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
     let isAdmin = false;
-    const HASH_ADMIN = "240be518fabd2724ddb6f04e959c122650cbc5e3e709689b022f392ad345c093"; // admin123
+    const HASH_ADMIN = "240be518fabd2724ddb6f04e959c122650cbc5e3e709689b022f392ad345c093";
 
     async function hashPassword(str) {
         const utf8 = new TextEncoder().encode(str);
@@ -121,19 +110,18 @@
 
     async function handleLogin() {
         if (!isAdmin) {
-            const p = prompt("Accès Admin - Mot de passe :");
+            const p = prompt("Admin Password :");
             if (await hashPassword(p) === HASH_ADMIN) {
                 isAdmin = true;
                 document.body.classList.add('is-admin');
-                document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-unlock"></i> Logout';
-                displayPortfolio();
-            } else { alert("Accès refusé"); }
+                document.getElementById('btn-admin').innerHTML = "Logout";
+            } else { alert("Refusé"); }
         } else {
             isAdmin = false;
             document.body.classList.remove('is-admin');
-            document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-lock"></i> Login';
-            displayPortfolio();
+            document.getElementById('btn-admin').innerHTML = "Login";
         }
+        displayPortfolio();
     }
 
     function switchTab(t) {
@@ -143,38 +131,47 @@
         document.getElementById('btn-' + t).classList.add('active');
     }
 
-    document.getElementById('imageInput').addEventListener('change', function() {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
-            imgs.push(e.target.result);
-            localStorage.setItem('mesPhotos', JSON.stringify(imgs));
+    // --- UPLOAD CLOUD ---
+    document.getElementById('imageInput').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const btnLabel = document.querySelector('.upload-label');
+        const oldContent = btnLabel.innerHTML;
+        btnLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', UPLOAD_PRESET);
+
+        try {
+            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+            imgs.push(data.secure_url);
+            localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
             displayPortfolio();
-        };
-        reader.readAsDataURL(this.files[0]);
+        } catch (err) { alert("Erreur d'envoi"); }
+        finally { btnLabel.innerHTML = oldContent; }
     });
 
     function displayPortfolio() {
-        const imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
-        document.getElementById('portfolioGrid').innerHTML = imgs.map((img, i) => `
-            <div class="portfolio-item"><img src="${img}">${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}</div>
+        const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+        document.getElementById('portfolioGrid').innerHTML = imgs.map((url, i) => `
+            <div class="portfolio-item"><img src="${url}">${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}</div>
         `).join('');
     }
 
     function deleteImg(i) {
-        let imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
+        let imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
         imgs.splice(i, 1);
-        localStorage.setItem('mesPhotos', JSON.stringify(imgs));
+        localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
         displayPortfolio();
     }
 
-    document.getElementById('themeToggle').addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-    });
-
-    window.onload = () => { displayPortfolio(); };
+    document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+    window.onload = () => displayPortfolio();
 </script>
 </body>
 </html>
