@@ -1,24 +1,25 @@
-# 📅 ReservaPro
+# ✂️ ReservaPro - Plateforme de Réservation & Portfolio
 
-**ReservaPro** est une application web moderne de réservation en ligne. 
-Elle permet aux utilisateurs de choisir un service, une date et un créneau horaire avec une interface élégante.
+Application web moderne pour professionnels permettant de gérer des rendez-vous, d'exposer ses créations et de faciliter le contact client.
 
 ## ✨ Fonctionnalités
-* 📅 **Réservation dynamique** : Prise de rendez-vous avec choix du service (Coupe, Barbe, Soin).
-* 🚫 **Anti-doublon** : Système intelligent empêchant les doubles réservations sur le même créneau.
-* 🌓 **Mode Sombre** : Bascule d'interface (Light/Dark) pour un confort d'utilisation 24h/24.
-* 💾 **Persistance des données** : Sauvegarde locale du portfolio et des RDV via le `LocalStorage`.
-* 📊 **Compteur intelligent** : Affichage en temps réel du nombre de rendez-vous à venir.
-* 📷 **Portfolio Interactif** : Galerie de réalisations avec importation et suppression de photos.
-* 📍 **Contact & Localisation** : Section dédiée avec coordonnées professionnelles et carte interactive (Google Maps).
-* 📱 **Design Ultra-Responsive** : Optimisé pour une navigation fluide sur mobile, tablette et PC (CSS Grid & Flexbox).
+* 📅 **Réservation dynamique** : Prise de rendez-vous fluide avec choix du service et de l'horaire.
+* 📷 **Portfolio Interactif** : Galerie d'images permettant d'exposer vos travaux.
+* 🔐 **Système d'Authentification** : Mode Administrateur sécurisé par mot de passe pour gérer les contenus (Ajout/Suppression).
+* 🌓 **Mode Sombre** : Interface adaptable pour un confort visuel optimal.
+* 📍 **Contact & Map** : Coordonnées professionnelles et carte interactive Google Maps intégrée.
+* 💾 **Persistance locale** : Sauvegarde des données via `LocalStorage` (pas besoin de base de données externe).
+* 📱 **Design Responsive** : Expérience fluide sur smartphones, tablettes et ordinateurs.
 
-## 🛠️ Technologies utilisées
-* **HTML5 / CSS3** (Variables CSS, Flexbox, Animations)
-* **JavaScript ES6** (Manipulation du DOM, LocalStorage)
-* **Font Awesome** (Icônes)
-* **Google Fonts** (Typographie Poppins)
+## 🛠️ Installation
+1. Clonez le dépôt.
+2. Ouvrez `index.html` dans votre navigateur.
+3. Pour accéder aux fonctions de gestion :
+   - Cliquez sur **Login**.
+   - Entrez le mot de passe par défaut : `admin123`.
 
-## 🚀 Installation
-1. Clonez ce dépôt.
-2. Ouvrez `index.html` avec l'extension **Live Server** sur VS Code.
+## 🚀 Technologies
+- HTML5 / CSS3 (Grid & Flexbox)
+- JavaScript Vanilla (ES6)
+- FontAwesome (Iconographie)
+- Google Fonts (Poppins)
