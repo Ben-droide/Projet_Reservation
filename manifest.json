@@ -1,0 +1,21 @@
+{
+  "name": "ReservaPro - Barber",
+  "short_name": "ReservaPro",
+  "description": "Réservez votre coupe et consultez mon portfolio.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#2b2d42",
+  "theme_color": "#4361ee",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770047092/bdfqj2q5ntyfphrxk1bs.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770045309/main-sample.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
