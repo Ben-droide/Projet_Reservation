@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservaPro | Réservation en ligne</title>
+    <title>ReservaPro | Portfolio & Réservation</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -18,7 +19,7 @@
             --bg-card: #ffffff;
             --text-main: #2b2d42;
             --text-sub: #666;
-            --border: #eee;
+            --border: #ddd;
         }
 
         body.dark-mode {
@@ -30,6 +31,10 @@
             --light: #2b2d42;
         }
 
+        * {
+            box-sizing: border-box; /* Crucial pour éviter les décalages de largeur */
+        }
+
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: var(--bg-body); 
@@ -38,14 +43,40 @@
             transition: 0.3s;
         }
 
+        /* --- NAVIGATION --- */
+        nav {
+            background: var(--dark);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav button {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: 0.3s;
+        }
+
+        nav button.active { 
+            border-bottom: 3px solid var(--primary); 
+            color: var(--primary); 
+        }
+
         header {
             background-color: var(--dark);
             color: white;
             width: 100%;
             padding: 20px 0;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
             position: relative;
         }
 
@@ -56,7 +87,7 @@
             background: transparent;
             border: 1.5px solid white;
             color: white;
-            padding: 5px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             cursor: pointer;
             font-size: 0.8rem;
@@ -66,85 +97,158 @@
         .container { 
             width: 95%; 
             max-width: 1000px; 
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr; /* 1 colonne par défaut (mobile) */
+            margin: 20px auto; 
+            display: none; /* Masqué par défaut */
             gap: 20px;
-            padding: 10px;
         }
 
-        /* Quand l'écran fait plus de 800px (Tablette large / PC) */
-        @media (min-width: 800px) {
-            .container {
-                grid-template-columns: 400px 1fr; /* Formulaire fixe à gauche, liste flexible à droite */
+        .container.active { 
+            display: grid; /* Affiché quand actif */
+        }
+
+        @media (min-width: 850px) {
+            #booking-section.active {
+                grid-template-columns: 400px 1fr;
                 align-items: start;
-                padding-top: 20px;
             }
-            header { margin-bottom: 40px; }
         }
 
+        /* --- CARTES ET FORMULAIRES --- */
         .card, .list-container { 
             background: var(--bg-card); 
             padding: 25px; 
             border-radius: 16px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            width: 100%;
         }
 
-        h2, h3 { color: var(--text-main); margin-top: 0; font-weight: 600; text-align: center;}
+        h2, h3 { margin-top: 0; font-weight: 600; text-align: center; }
 
-        .counter-badge {
-            background-color: var(--primary);
-            color: white;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-sub); }
+        .input-group { margin-bottom: 15px; width: 100%; }
         
-        .input-with-icon { position: relative; }
-        .input-with-icon i { position: absolute; left: 12px; top: 12px; color: var(--primary); }
+        label { 
+            display: block; 
+            margin-bottom: 6px; 
+            font-size: 0.85rem; 
+            color: var(--text-sub); 
+        }
+        
+        .input-with-icon { 
+            position: relative; 
+            width: 100%;
+        }
+
+        .input-with-icon i { 
+            position: absolute; 
+            left: 12px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--primary);
+            pointer-events: none;
+        }
         
         input, select { 
-            width: 100%; padding: 10px 10px 10px 35px; border: 1.5px solid var(--border); border-radius: 8px; 
-            box-sizing: border-box; background: var(--bg-card); color: var(--text-main); font-size: 1rem;
+            width: 100%; 
+            padding: 12px 12px 12px 40px; 
+            border: 1.5px solid var(--border); 
+            border-radius: 8px; 
+            background: var(--bg-card); 
+            color: var(--text-main); 
+            font-family: 'Poppins';
+            font-size: 0.95rem;
+            display: block;
         }
 
         .btn-valider { 
-            background-color: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; 
-            width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s;
+            background-color: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 8px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: 0.3s;
         }
-        .btn-valider:hover { filter: brightness(1.1); transform: scale(1.02); }
 
+        /* --- LISTE DES RÉSERVATIONS --- */
         .res-item { 
-            background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 12px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            animation: fadeIn 0.4s ease-in;
+            background: var(--light); 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin-bottom: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .counter-badge { 
+            background: var(--primary); 
+            color: white; 
+            padding: 2px 10px; 
+            border-radius: 10px; 
+            font-size: 0.8rem; 
+            margin-left: 10px;
         }
 
-        .res-info strong { color: var(--text-main); display: block; }
-        .res-info span { color: var(--primary); font-size: 0.85rem; font-weight: 600; }
-        .res-info small { color: var(--text-sub); display: block; margin-top: 4px; }
+        /* --- PORTFOLIO --- */
+        .portfolio-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
 
-        .btn-delete { background: transparent; color: var(--danger); border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; }
+        .portfolio-item { 
+            position: relative; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            aspect-ratio: 1 / 1; 
+            background: #ddd; 
+        }
+
+        .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
+
+        .btn-del-img { 
+            position: absolute; 
+            top: 5px; 
+            right: 5px; 
+            background: var(--danger); 
+            color: white; 
+            border: none; 
+            border-radius: 50%; 
+            width: 25px; 
+            height: 25px; 
+            cursor: pointer; 
+        }
+
+        .upload-label { 
+            background: var(--success); 
+            color: white; 
+            padding: 12px 25px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            display: inline-block; 
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        #imageInput { display: none; }
     </style>
 </head>
 <body>
+
+<nav>
+    <button onclick="switchTab('booking')" id="btn-booking" class="active"><i class="fa-solid fa-calendar"></i> Réservation</button>
+    <button onclick="switchTab('portfolio')" id="btn-portfolio"><i class="fa-solid fa-camera"></i> Portfolio</button>
+</nav>
 
 <header>
     <h1><i class="fa-solid fa-calendar-check"></i> ReservaPro</h1>
     <button id="themeToggle"><i class="fa-solid fa-moon"></i> Mode</button>
 </header>
 
-<div class="container">
+<div id="booking-section" class="container active">
     <div class="card">
         <h2>Nouvelle Réservation</h2>
         <form id="reservationForm">
@@ -164,52 +268,72 @@
                         <option value="Coupe Classique">Coupe Classique</option>
                         <option value="Taille de Barbe">Taille de Barbe</option>
                         <option value="Soin Complet">Soin Complet</option>
-                        <option value="Épillation des sourcils">Épilation des sourcils</option>
+                        <option value="Épilation sourcils">Épilation sourcils</option>
                     </select>
                 </div>
             </div>
 
             <div class="input-group">
                 <label>Date et Heure</label>
-                <input type="date" id="date" required style="margin-bottom: 10px; padding-left: 12px;">
+                <div class="input-with-icon" style="margin-bottom: 10px;">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <input type="date" id="date" required>
+                </div>
                 <div class="input-with-icon">
                     <i class="fa-solid fa-clock"></i>
                     <select id="time">
                         <option value="09:00">09:00</option>
                         <option value="10:00">10:00</option>
                         <option value="14:00">14:00</option>
+                        <option value="16:00">16:00</option>
                     </select>
                 </div>
             </div>
 
-            <button type="submit" class="btn-valider">Réserver</button>
+            <button type="submit" class="btn-valider">Confirmer le rendez-vous</button>
         </form>
     </div>
 
     <div class="list-container">
-        <h3>
-            Rendez-vous 
-            <span id="resCounter" class="counter-badge">0</span>
-        </h3>
-        <div id="statusMessage" style="text-align: center; font-size: 0.8rem; margin-bottom: 10px; min-height: 20px;"></div>
+        <h3>Rendez-vous <span id="resCounter" class="counter-badge">0</span></h3>
+        <div id="statusMessage" style="text-align: center; font-size: 0.8rem; margin-bottom: 10px; font-weight: 600;"></div>
         <div id="reservationList"></div>
     </div>
 </div>
 
+<div id="portfolio-section" class="container">
+    <div class="card" style="text-align: center;">
+        <h2>Mon Portfolio</h2>
+        <p>Partagez vos meilleures créations avec vos clients.</p>
+        
+        <label for="imageInput" class="upload-label">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Ajouter une photo
+        </label>
+        <input type="file" id="imageInput" accept="image/*">
+
+        <div id="portfolioGrid" class="portfolio-grid"></div>
+    </div>
+</div>
+
 <script>
+    // --- GESTION DES ONGLETS ---
+    function switchTab(tab) {
+        document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        
+        document.getElementById(tab + '-section').classList.add('active');
+        document.getElementById('btn-' + tab).classList.add('active');
+    }
+
+    // --- LOGIQUE RÉSERVATION ---
     const form = document.getElementById('reservationForm');
     const list = document.getElementById('reservationList');
     const counter = document.getElementById('resCounter');
-    const themeToggle = document.getElementById('themeToggle');
-
-    // Toggle Dark Mode
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        themeToggle.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i> Mode' : '<i class="fa-solid fa-moon"></i> Mode';
-    });
-
-    window.onload = () => displayReservations();
+    
+    window.onload = () => {
+        displayReservations();
+        displayPortfolio();
+    };
 
     function showNotification(text, color) {
         const msg = document.getElementById('statusMessage');
@@ -220,53 +344,96 @@
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('name').value;
-        const service = document.getElementById('service').value;
         const date = document.getElementById('date').value;
         const time = document.getElementById('time').value;
-
+        
         const allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
+        
+        // Anti-doublon
         if (allRes.find(res => res.date === date && res.time === time)) {
-            showNotification("❌ Créneau déjà pris !", "var(--danger)");
+            showNotification("❌ Créneau déjà réservé !", "var(--danger)");
             return;
         }
 
-        allRes.push({ id: Date.now(), name, service, date, time });
+        const newRes = { 
+            id: Date.now(), 
+            name: document.getElementById('name').value, 
+            service: document.getElementById('service').value, 
+            date: date, 
+            time: time 
+        };
+
+        allRes.push(newRes);
         localStorage.setItem('mesReservations', JSON.stringify(allRes));
         form.reset();
         displayReservations();
-        showNotification("✅ Confirmé !", "var(--success)");
+        showNotification("✅ Réservation réussie !", "var(--success)");
     });
-
-    function deleteReservation(id) {
-        let allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
-        allRes = allRes.filter(res => res.id !== id);
-        localStorage.setItem('mesReservations', JSON.stringify(allRes));
-        displayReservations();
-        showNotification("🗑️ Supprimé", "var(--text-sub)");
-    }
 
     function displayReservations() {
         const allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
-        list.innerHTML = ''; 
-        
-        // Mise à jour du compteur
         counter.textContent = allRes.length;
-
-        allRes.forEach(res => {
-            const item = document.createElement('div');
-            item.className = 'res-item';
-            item.innerHTML = `
+        list.innerHTML = allRes.map(res => `
+            <div class="res-item">
                 <div class="res-info">
                     <strong>${res.name}</strong>
                     <span>${res.service}</span>
-                    <small>Le ${res.date} à ${res.time}</small>
+                    <small><i class="fa-regular fa-clock"></i> ${res.date} à ${res.time}</small>
                 </div>
-                <button class="btn-delete" onclick="deleteReservation(${res.id})"><i class="fa-solid fa-trash-can"></i></button>
-            `;
-            list.appendChild(item);
-        });
+                <button class="btn-delete" style="background:none; border:none; color:var(--danger); cursor:pointer;" onclick="deleteRes(${res.id})">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
+        `).join('');
     }
+
+    function deleteRes(id) {
+        let allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
+        allRes = allRes.filter(r => r.id !== id);
+        localStorage.setItem('mesReservations', JSON.stringify(allRes));
+        displayReservations();
+    }
+
+    // --- LOGIQUE PORTFOLIO ---
+    const imageInput = document.getElementById('imageInput');
+    const portfolioGrid = document.getElementById('portfolioGrid');
+
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const allImages = JSON.parse(localStorage.getItem('mesPhotos')) || [];
+                allImages.push(e.target.result);
+                localStorage.setItem('mesPhotos', JSON.stringify(allImages));
+                displayPortfolio();
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    function displayPortfolio() {
+        const allImages = JSON.parse(localStorage.getItem('mesPhotos')) || [];
+        portfolioGrid.innerHTML = allImages.map((img, index) => `
+            <div class="portfolio-item">
+                <img src="${img}">
+                <button class="btn-del-img" onclick="deleteImg(${index})">&times;</button>
+            </div>
+        `).join('');
+    }
+
+    function deleteImg(index) {
+        let allImages = JSON.parse(localStorage.getItem('mesPhotos')) || [];
+        allImages.splice(index, 1);
+        localStorage.setItem('mesPhotos', JSON.stringify(allImages));
+        displayPortfolio();
+    }
+
+    // Mode sombre
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i> Mode' : '<i class="fa-solid fa-moon"></i> Mode';
+    });
 </script>
 
 </body>
