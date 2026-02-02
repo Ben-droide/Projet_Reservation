@@ -9,6 +9,7 @@ Elle permet aux utilisateurs de choisir un service, une date et un créneau hora
 * 🌓 **Mode Sombre** : Interface adaptable pour un meilleur confort visuel.
 * 💾 **Persistance des données** : Sauvegarde locale via le LocalStorage.
 * 📊 **Compteur intelligent** : Affichage du nombre total de réservations.
+*    **PortFolio** : Ajout de photo 
 
 ## 🛠️ Technologies utilisées
 * **HTML5 / CSS3** (Variables CSS, Flexbox, Animations)
