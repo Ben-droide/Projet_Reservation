@@ -35,9 +35,6 @@
             background-color: var(--bg-body); 
             color: var(--text-main);
             margin: 0;
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
             transition: 0.3s;
         }
 
@@ -48,7 +45,7 @@
             padding: 20px 0;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             position: relative;
         }
 
@@ -65,19 +62,36 @@
             font-size: 0.8rem;
         }
 
-        .container { width: 90%; max-width: 400px; }
+        /* --- LAYOUT RESPONSIVE --- */
+        .container { 
+            width: 95%; 
+            max-width: 1000px; 
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr; /* 1 colonne par défaut (mobile) */
+            gap: 20px;
+            padding: 10px;
+        }
+
+        /* Quand l'écran fait plus de 800px (Tablette large / PC) */
+        @media (min-width: 800px) {
+            .container {
+                grid-template-columns: 400px 1fr; /* Formulaire fixe à gauche, liste flexible à droite */
+                align-items: start;
+                padding-top: 20px;
+            }
+            header { margin-bottom: 40px; }
+        }
 
         .card, .list-container { 
             background: var(--bg-card); 
             padding: 25px; 
             border-radius: 16px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-            margin-bottom: 30px; 
         }
 
         h2, h3 { color: var(--text-main); margin-top: 0; font-weight: 600; text-align: center;}
 
-        /* Style du Compteur */
         .counter-badge {
             background-color: var(--primary);
             color: white;
@@ -96,23 +110,31 @@
         
         input, select { 
             width: 100%; padding: 10px 10px 10px 35px; border: 1.5px solid var(--border); border-radius: 8px; 
-            box-sizing: border-box; background: var(--bg-card); color: var(--text-main);
+            box-sizing: border-box; background: var(--bg-card); color: var(--text-main); font-size: 1rem;
         }
 
         .btn-valider { 
-            background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: 8px; 
-            width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px;
+            background-color: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; 
+            width: 100%; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s;
         }
+        .btn-valider:hover { filter: brightness(1.1); transform: scale(1.02); }
 
         .res-item { 
-            background: var(--light); padding: 12px; border-radius: 10px; margin-bottom: 10px; 
+            background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 12px; 
             display: flex; justify-content: space-between; align-items: center; 
+            animation: fadeIn 0.4s ease-in;
         }
-        .res-info strong { color: var(--text-main); display: block; }
-        .res-info span { color: var(--primary); font-size: 0.8rem; font-weight: 600; }
-        .res-info small { color: var(--text-sub); display: block; }
 
-        .btn-delete { background: transparent; color: var(--danger); border: none; cursor: pointer; font-size: 1.1rem; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .res-info strong { color: var(--text-main); display: block; }
+        .res-info span { color: var(--primary); font-size: 0.85rem; font-weight: 600; }
+        .res-info small { color: var(--text-sub); display: block; margin-top: 4px; }
+
+        .btn-delete { background: transparent; color: var(--danger); border: none; cursor: pointer; font-size: 1.2rem; padding: 5px; }
     </style>
 </head>
 <body>
