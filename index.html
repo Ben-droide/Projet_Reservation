@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservaPro | Portfolio Cloud & Calendly</title>
+    <title>ReservaPro | Portfolio Cloud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -43,7 +43,7 @@
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
         .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; }
         .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
+        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
 
         .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
     </style>
@@ -89,14 +89,14 @@
         <p><i class="fa-solid fa-location-dot"></i> 123 Rue de la Coiffure, Paris</p>
     </div>
     <div class="map-container">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.292292615666305!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca97e440e2488!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1645000000000!5m2!1sfr!2sfr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.2922926156736!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca97ef0800b3!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1625123456789!5m2!1sfr!2sfr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
 </div>
 
 <script>
-    // --- CONFIG CLOUDINARY ---
+    // --- TES INFOS CLOUDINARY ---
     const CLOUD_NAME = "dkfbcedvr";
-    const UPLOAD_PRESET = "VOTRE_PRESET_NAME"; // <-- REMPLACE-MOI
+    const UPLOAD_PRESET = "reservapro_preset"; 
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
     let isAdmin = false;
@@ -110,12 +110,12 @@
 
     async function handleLogin() {
         if (!isAdmin) {
-            const p = prompt("Admin Password :");
+            const p = prompt("Password :");
             if (await hashPassword(p) === HASH_ADMIN) {
                 isAdmin = true;
                 document.body.classList.add('is-admin');
                 document.getElementById('btn-admin').innerHTML = "Logout";
-            } else { alert("Refusé"); }
+            } else { alert("Nop."); }
         } else {
             isAdmin = false;
             document.body.classList.remove('is-admin');
@@ -131,13 +131,12 @@
         document.getElementById('btn-' + t).classList.add('active');
     }
 
-    // --- UPLOAD CLOUD ---
+    // --- ENVOI CLOUD ---
     document.getElementById('imageInput').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         const btnLabel = document.querySelector('.upload-label');
-        const oldContent = btnLabel.innerHTML;
         btnLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
 
         const formData = new FormData();
@@ -148,18 +147,31 @@
             const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
             const data = await res.json();
             
-            const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-            imgs.push(data.secure_url);
-            localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
-            displayPortfolio();
-        } catch (err) { alert("Erreur d'envoi"); }
-        finally { btnLabel.innerHTML = oldContent; }
+            if (data.secure_url) {
+                const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+                imgs.push(data.secure_url);
+                localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
+                displayPortfolio();
+            } else {
+                console.error("Erreur Cloudinary:", data);
+                alert("Erreur de réponse du serveur.");
+            }
+        } catch (err) { 
+            console.error(err);
+            alert("Erreur réseau."); 
+        } finally { 
+            btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; 
+        }
     });
 
     function displayPortfolio() {
         const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-        document.getElementById('portfolioGrid').innerHTML = imgs.map((url, i) => `
-            <div class="portfolio-item"><img src="${url}">${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}</div>
+        const grid = document.getElementById('portfolioGrid');
+        grid.innerHTML = imgs.map((url, i) => `
+            <div class="portfolio-item">
+                <img src="${url}">
+                ${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}
+            </div>
         `).join('');
     }
 

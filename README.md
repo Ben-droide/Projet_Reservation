@@ -1,18 +1,18 @@
-# ✂️ ReservaPro v6.0 - Cloud & Calendly Professionnel
+# ✂️ ReservaPro v7.0 - Solution Connectée Finale
 
-## 🌟 Points Forts
-- **Calendly Intégré** : Gestion multi-services avec blocage automatique des créneaux Google Calendar.
-- **Stockage Cloudinary** : Vos photos sont stockées dans le cloud, accessibles partout et optimisées.
-- **Sécurité SHA-256** : Administration sécurisée pour le contrôle du contenu.
-- **Interface Adaptive** : Mode sombre et design mobile-first.
+Application métier pour salon de coiffure/esthétique intégrant la prise de rendez-vous synchronisée et un portfolio cloud.
 
-## 🛠️ Configuration
-1. **Réservations** : Le widget est lié au compte Calendly `benoitrenaux1999`.
-2. **Photos** : Les images sont hébergées sur le cloud `dkfbcedvr`.
-3. **Admin** : Mot de passe `admin123`.
+## 🚀 Fonctionnalités Clés
+* **📅 Calendly Integration** : Prise de rendez-vous en temps réel via `benoitrenaux1999/30min`. Les créneaux sont automatiquement bloqués dans l'agenda Google.
+* **☁️ Cloudinary Storage** : Stockage permanent des images du portfolio sur le cloud (`dkfbcedvr`). Les images ne sont plus dépendantes du navigateur.
+* **🔐 Sécurité SHA-256** : Mode administration verrouillé par mot de passe pour la gestion du portfolio.
+* **🌗 Interface Adaptive** : Mode sombre inclus avec persistance visuelle.
 
-## 📦 Technologies
-- JavaScript ES6+ & Fetch API
-- Cloudinary Media API
-- Calendly Inline Widget
-- Web Crypto API
+## 🛠️ Configuration Technique
+* **Cloud Name** : `dkfbcedvr`
+* **Upload Preset** : `reservapro_preset` (Mode non-signé)
+* **Auth** : Hachage cryptographique côté client.
+
+## 📁 Installation & Déploiement
+1. Héberger le fichier `index.html` sur **GitHub Pages**.
+2. Accéder à l'interface Admin via le bouton **Login** (Mot de passe : `admin123`).
