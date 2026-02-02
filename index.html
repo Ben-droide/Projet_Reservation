@@ -166,24 +166,44 @@
 <script>
     let isAdmin = false;
 
-    function handleLogin() {
-        if (!isAdmin) {
-            const pass = prompt("Mot de passe admin :");
-            if (pass === "admin123") {
-                isAdmin = true;
-                document.body.classList.add('is-admin');
-                document.getElementById('btn-admin').classList.add('logged');
-                document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-unlock"></i> Admin';
-            } else { alert("Accès refusé"); }
+    // Ton mot de passe chiffré (Hash SHA-256 de "admin123")
+const HASH_ADMIN = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+
+// Fonction pour hacher une chaîne de caractères
+async function hashPassword(string) {
+    const utf8 = new TextEncoder().encode(string);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function handleLogin() {
+    if (!isAdmin) {
+        const passSaisi = prompt("Mot de passe admin :");
+        if (!passSaisi) return;
+
+        // On hache la saisie pour la comparer au hash stocké
+        const hashedInput = await hashPassword(passSaisi);
+
+        if (hashedInput === HASH_ADMIN) {
+            isAdmin = true;
+            document.body.classList.add('is-admin');
+            document.getElementById('btn-admin').classList.add('logged');
+            document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-unlock"></i> Admin';
+            alert("Connexion sécurisée réussie !");
         } else {
-            isAdmin = false;
-            document.body.classList.remove('is-admin');
-            document.getElementById('btn-admin').classList.remove('logged');
-            document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-lock"></i> Login';
+            alert("Accès refusé : mot de passe incorrect.");
         }
-        displayReservations();
-        displayPortfolio();
+    } else {
+        // Déconnexion
+        isAdmin = false;
+        document.body.classList.remove('is-admin');
+        document.getElementById('btn-admin').classList.remove('logged');
+        document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-lock"></i> Login';
     }
+    displayReservations();
+    displayPortfolio();
+}
 
     function switchTab(tab) {
         document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
