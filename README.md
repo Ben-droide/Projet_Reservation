@@ -1,26 +1,25 @@
-# ✂️ ReservaPro - Gestion Professionnelle & Portfolio
+# ✂️ ReservaPro v2.0 - Réservation avec Rappel Calendrier
 
-ReservaPro est une application web légère et sécurisée destinée aux professionnels (coiffeurs, barbiers, soins) pour gérer leurs rendez-vous et présenter leur travail.
+ReservaPro est une plateforme complète pour professionnels de la coiffure et de l'esthétique, offrant une gestion autonome des rendez-vous et un portfolio sécurisé.
 
-## ✨ Fonctionnalités
-- 📅 **Gestion des RDV** : Formulaire de réservation avec sélection de services.
-- 📷 **Portfolio Administrable** : Galerie interactive pour exposer vos réalisations.
-- 🔐 **Sécurité SHA-256** : Authentification par hachage cryptographique pour protéger les fonctions d'édition.
-- 📍 **Localisation & Contact** : Intégration Google Maps et liens réseaux sociaux.
-- 🌓 **Mode Sombre** : Interface élégante adaptable selon la luminosité.
-- 💾 **Données Persistantes** : Utilisation du `LocalStorage` pour une sauvegarde côté client.
+## 🚀 Nouveautés v2.0
+- 📅 **Intégration Calendrier (ICS)** : Un fichier `.ics` est généré à chaque réservation pour permettre au client d'ajouter le rappel dans son agenda (iPhone, Android, Google).
+- 📧 **Confirmation par Mail** : Ouverture automatique du logiciel de messagerie avec un message de confirmation pré-rempli.
+- 🔐 **Sécurité SHA-256** : Authentification admin hachée pour protéger l'intégrité du portfolio.
 
-## 🔒 Sécurité
-L'application utilise l'API **Web Crypto** du navigateur pour hacher le mot de passe admin en SHA-256. 
-- **Mot de passe par défaut** : `admin123`
-- Le mot de passe n'apparaît jamais en clair dans le code source.
+## ✨ Fonctionnalités Clés
+* ✅ **Booking Intelligent** : Système de réservation avec sélection de services.
+* 📷 **Galerie Portfolio** : Importation et gestion de photos de réalisations (réservé admin).
+* 🌓 **Mode Sombre** : Interface élégante et adaptative.
+* 💾 **Zéro Serveur** : Utilisation exclusive du `LocalStorage` et des API Web natives.
+* 📍 **Contact & Map** : Coordonnées et carte interactive.
+
+## 🔒 Administration
+Pour éditer le contenu (ajouter des photos, supprimer des RDV) :
+1. Cliquez sur **Login**.
+2. Mot de passe par défaut : `admin123`.
 
 ## 🛠️ Technologies
-- **Front-end** : HTML5, CSS3 (Grid/Flexbox), JavaScript Vanilla.
-- **Design** : Google Fonts (Poppins), FontAwesome 6.
-- **Cryptographie** : SHA-256 (Web Crypto API).
-
-## 🚀 Utilisation
-1. Clonez le projet ou téléchargez le fichier `index.html`.
-2. Ouvrez le fichier dans un navigateur moderne.
-3. Pour ajouter des photos ou supprimer des rendez-vous, cliquez sur **Login** et entrez le mot de passe.
+- **JavaScript ES6+** : Gestion du DOM et des fichiers (Blob, FileReader).
+- **Web Crypto API** : Hachage sécurisé SHA-256.
+- **CSS Grid & Flexbox** : Design ultra-responsive.

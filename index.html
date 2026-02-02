@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReservaPro | Portfolio & Gestion</title>
+    <title>ReservaPro | Portfolio & Calendrier</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -56,11 +56,9 @@
             font-weight: 600;
             border-bottom: 3px solid transparent;
             transition: 0.3s;
-            font-size: 0.9rem;
         }
 
         nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
-        
         #btn-admin { color: #ffbe0b; border: 1px solid #ffbe0b; border-radius: 20px; margin-left: 10px; }
         #btn-admin.logged { background: #ffbe0b; color: var(--dark); }
 
@@ -77,39 +75,32 @@
 
         .card, .list-container { background: var(--bg-card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; }
 
-        /* --- FORMULAIRES --- */
+        /* --- INPUTS --- */
         .input-group { margin-bottom: 15px; }
         .input-with-icon { position: relative; width: 100%; }
         .input-with-icon i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); pointer-events: none; }
         input, select { width: 100%; padding: 12px 12px 12px 40px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg-card); color: var(--text-main); font-family: 'Poppins'; }
-        .btn-valider { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; }
+        
+        .btn-valider { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; cursor: pointer; font-weight: 600; transition: 0.3s; }
 
-        /* --- CONTACT & MAP --- */
-        .contact-info { list-style: none; padding: 0; }
-        .contact-info li { margin-bottom: 20px; display: flex; align-items: center; gap: 15px; font-size: 1.1rem; }
-        .contact-info i { color: var(--primary); font-size: 1.4rem; width: 30px; text-align: center; }
-        .social-links { display: flex; gap: 15px; margin-top: 20px; justify-content: center; }
-        .social-links a { font-size: 1.5rem; color: var(--primary); transition: 0.3s; }
-        .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
-        iframe { width: 100%; height: 100%; border: 0; }
-
-        /* --- PORTFOLIO --- */
+        /* --- PORTFOLIO & CONTACT --- */
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
         .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; }
         .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
         .btn-del-img { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; }
-        
-        .admin-only { display: none; } /* Masqué par défaut */
+        .admin-only { display: none; } 
         body.is-admin .admin-only { display: inline-block; }
-
-        .upload-label { background: var(--success); color: white; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-weight: 600; margin-bottom: 20px; }
-        #imageInput { display: none; }
+        
+        .contact-info { list-style: none; padding: 0; }
+        .contact-info li { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
+        iframe { width: 100%; height: 100%; border: 0; }
 
         .res-item { background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .counter-badge { background: var(--primary); color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.8rem; margin-left: 10px; }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
 <nav>
     <button onclick="switchTab('booking')" id="btn-booking" class="active">RDV</button>
@@ -126,14 +117,15 @@
 <div id="booking-section" class="container active">
     <div class="card">
         <h3>Prendre RDV</h3>
+        <p style="font-size: 0.8rem; color: var(--text-sub);">Un fichier calendrier (.ics) sera généré automatiquement.</p>
         <form id="reservationForm">
             <div class="input-group"><div class="input-with-icon"><i class="fa-solid fa-user"></i><input type="text" id="name" placeholder="Nom" required></div></div>
             <div class="input-group"><div class="input-with-icon"><i class="fa-solid fa-scissors"></i><select id="service"><option value="Coupe">Coupe</option><option value="Barbe">Barbe</option><option value="Soin">Soin</option></select></div></div>
             <div class="input-group">
-                <div class="input-with-icon" style="margin-bottom:10px"><i class="fa-solid fa-calendar-day"></i><input type="date" id="date" required></div>
-                <div class="input-with-icon"><i class="fa-solid fa-clock"></i><select id="time"><option value="09:00">09:00</option><option value="14:00">14:00</option></select></div>
+                <input type="date" id="date" required style="margin-bottom: 10px; padding-left: 15px;">
+                <select id="time" style="padding-left: 15px;"><option value="09:00">09:00</option><option value="14:00">14:00</option></select>
             </div>
-            <button type="submit" class="btn-valider">Réserver</button>
+            <button type="submit" class="btn-valider">Confirmer & Télécharger rappel</button>
         </form>
     </div>
     <div class="list-container">
@@ -145,8 +137,8 @@
 <div id="portfolio-section" class="container">
     <div class="card" style="text-align: center;">
         <h3>Galerie Photos</h3>
-        <label for="imageInput" class="upload-label admin-only"><i class="fa-solid fa-plus"></i> Ajouter une photo</label>
-        <input type="file" id="imageInput" accept="image/*">
+        <label for="imageInput" class="upload-label admin-only" style="background:var(--success); color:white; padding:10px 20px; border-radius:20px; cursor:pointer;">Ajouter</label>
+        <input type="file" id="imageInput" accept="image/*" style="display:none">
         <div id="portfolioGrid" class="portfolio-grid"></div>
     </div>
 </div>
@@ -158,106 +150,117 @@
             <li><i class="fa-solid fa-phone"></i> 01 23 45 67 89</li>
             <li><i class="fa-solid fa-location-dot"></i> 123 Rue de la Coiffure, Paris</li>
         </ul>
-        <div class="social-links"><a href="#"><i class="fa-brands fa-instagram"></i></a><a href="#"><i class="fa-brands fa-tiktok"></i></a></div>
     </div>
-    <div class="map-container"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.2922926156743895!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca9ee380ef7e0!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1647441432105!5m2!1sfr!2sfr"></iframe></div>
+    <div class="map-container"><iframe src="https://maps.google.com/maps/contrib/104509143844387395980"></iframe></div>
 </div>
 
 <script>
+    // --- SECURITE SHA-256 ---
     let isAdmin = false;
+    const HASH_ADMIN = "240be518fabd2724ddb6f04e959c122650cbc5e3e709689b022f392ad345c093";
 
-    // Ton mot de passe chiffré (Hash SHA-256 de "admin123")
-const HASH_ADMIN = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
-
-// Fonction pour hacher une chaîne de caractères
-async function hashPassword(string) {
-    const utf8 = new TextEncoder().encode(string);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function handleLogin() {
-    if (!isAdmin) {
-        const passSaisi = prompt("Mot de passe admin :");
-        if (!passSaisi) return;
-
-        // On hache la saisie pour la comparer au hash stocké
-        const hashedInput = await hashPassword(passSaisi);
-
-        if (hashedInput === HASH_ADMIN) {
-            isAdmin = true;
-            document.body.classList.add('is-admin');
-            document.getElementById('btn-admin').classList.add('logged');
-            document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-unlock"></i> Admin';
-            alert("Connexion sécurisée réussie !");
-        } else {
-            alert("Accès refusé : mot de passe incorrect.");
-        }
-    } else {
-        // Déconnexion
-        isAdmin = false;
-        document.body.classList.remove('is-admin');
-        document.getElementById('btn-admin').classList.remove('logged');
-        document.getElementById('btn-admin').innerHTML = '<i class="fa-solid fa-lock"></i> Login';
+    async function hashPassword(string) {
+        const utf8 = new TextEncoder().encode(string);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
-    displayReservations();
-    displayPortfolio();
-}
 
+    async function handleLogin() {
+        if (!isAdmin) {
+            const pass = prompt("Password admin :");
+            if (await hashPassword(pass) === HASH_ADMIN) {
+                isAdmin = true;
+                document.body.classList.add('is-admin');
+                document.getElementById('btn-admin').innerHTML = "Admin OK";
+            } else { alert("Nop."); }
+        } else {
+            isAdmin = false;
+            document.body.classList.remove('is-admin');
+            document.getElementById('btn-admin').innerHTML = "Login";
+        }
+        displayReservations(); displayPortfolio();
+    }
+
+    // --- GENERATEUR ICS (CALENDRIER) ---
+    function downloadICS(name, service, date, time) {
+        const dateICS = date.replace(/-/g, '');
+        const timeICS = time.replace(':', '') + '00';
+        const icsContent = [
+            "BEGIN:VCALENDAR", "VERSION:2.0", "BEGIN:VEVENT",
+            `DTSTART:${dateICS}T${timeICS}`,
+            `SUMMARY:RDV ${service} - ReservaPro`,
+            `DESCRIPTION:Rendez-vous pour ${name}`,
+            "END:VEVENT", "END:VCALENDAR"
+        ].join("\n");
+
+        const blob = new Blob([icsContent], { type: 'text/calendar' });
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = "rappel_rdv.ics";
+        link.click();
+    }
+
+    // --- LOGIQUE INTERFACE ---
     function switchTab(tab) {
         document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
         document.getElementById(tab + '-section').classList.add('active');
-        document.getElementById('btn-' + tab).classList.add('active');
     }
 
     const form = document.getElementById('reservationForm');
-    window.onload = () => { displayReservations(); displayPortfolio(); };
-
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        const allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
-        allRes.push({ id: Date.now(), name: document.getElementById('name').value, service: document.getElementById('service').value, date: document.getElementById('date').value, time: document.getElementById('time').value });
-        localStorage.setItem('mesReservations', JSON.stringify(allRes));
-        form.reset();
-        displayReservations();
+        const n = document.getElementById('name').value;
+        const s = document.getElementById('service').value;
+        const d = document.getElementById('date').value;
+        const t = document.getElementById('time').value;
+
+        const all = JSON.parse(localStorage.getItem('mesReservations')) || [];
+        all.push({ id: Date.now(), name: n, service: s, date: d, time: t });
+        localStorage.setItem('mesReservations', JSON.stringify(all));
+
+        // 1. Telechargement ICS
+        downloadICS(n, s, d, t);
+        
+        // 2. Mailto
+        window.location.href = `mailto:?subject=Confirmation RDV&body=Salut ${n}, ton RDV ${s} est le ${d} à ${t}.`;
+
+        form.reset(); displayReservations();
     });
 
     function displayReservations() {
-        const allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
-        document.getElementById('resCounter').textContent = allRes.length;
-        document.getElementById('reservationList').innerHTML = allRes.map(res => `
+        const all = JSON.parse(localStorage.getItem('mesReservations')) || [];
+        document.getElementById('resCounter').textContent = all.length;
+        document.getElementById('reservationList').innerHTML = all.map(res => `
             <div class="res-item">
                 <div><strong>${res.name}</strong><br><small>${res.service} - ${res.date}</small></div>
-                ${isAdmin ? `<button onclick="deleteRes(${res.id})" style="color:var(--danger); border:none; background:none; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>` : ''}
+                ${isAdmin ? `<button onclick="deleteRes(${res.id})">🗑️</button>` : ''}
             </div>
         `).join('');
     }
 
     function deleteRes(id) {
-        let allRes = JSON.parse(localStorage.getItem('mesReservations')) || [];
-        localStorage.setItem('mesReservations', JSON.stringify(allRes.filter(r => r.id !== id)));
+        let all = JSON.parse(localStorage.getItem('mesReservations')) || [];
+        localStorage.setItem('mesReservations', JSON.stringify(all.filter(r => r.id !== id)));
         displayReservations();
     }
 
+    function displayPortfolio() {
+        const imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
+        document.getElementById('portfolioGrid').innerHTML = imgs.map((img, i) => `
+            <div class="portfolio-item"><img src="${img}">${isAdmin ? `<button onclick="deleteImg(${i})">×</button>` : ''}</div>
+        `).join('');
+    }
+
     document.getElementById('imageInput').addEventListener('change', function() {
-        const reader = new FileReader();
-        reader.onload = (e) => {
+        const r = new FileReader();
+        r.onload = (e) => {
             const imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
             imgs.push(e.target.result);
             localStorage.setItem('mesPhotos', JSON.stringify(imgs));
             displayPortfolio();
         };
-        reader.readAsDataURL(this.files[0]);
+        r.readAsDataURL(this.files[0]);
     });
-
-    function displayPortfolio() {
-        const imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
-        document.getElementById('portfolioGrid').innerHTML = imgs.map((img, i) => `
-            <div class="portfolio-item"><img src="${img}">${isAdmin ? `<button class="btn-del-img" onclick="deleteImg(${i})">×</button>` : ''}</div>
-        `).join('');
-    }
 
     function deleteImg(i) {
         let imgs = JSON.parse(localStorage.getItem('mesPhotos')) || [];
@@ -267,6 +270,7 @@ async function handleLogin() {
     }
 
     document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+    window.onload = () => { displayReservations(); displayPortfolio(); };
 </script>
 </body>
 </html>
