@@ -1,25 +1,26 @@
-# ✂️ ReservaPro v2.0 - Réservation avec Rappel Calendrier
+# ✂️ ReservaPro v3.0 - Confidentialité & Productivité
 
-ReservaPro est une plateforme complète pour professionnels de la coiffure et de l'esthétique, offrant une gestion autonome des rendez-vous et un portfolio sécurisé.
+Version professionnelle avec gestion privée des données clients et outils de rappel automatique.
 
-## 🚀 Nouveautés v2.0
-- 📅 **Intégration Calendrier (ICS)** : Un fichier `.ics` est généré à chaque réservation pour permettre au client d'ajouter le rappel dans son agenda (iPhone, Android, Google).
-- 📧 **Confirmation par Mail** : Ouverture automatique du logiciel de messagerie avec un message de confirmation pré-rempli.
-- 🔐 **Sécurité SHA-256** : Authentification admin hachée pour protéger l'intégrité du portfolio.
+## 🔒 Confidentialité & Sécurité
+* **Vie Privée** : La liste des réservations est **totalement masquée** pour les visiteurs. Seul l'administrateur peut la consulter après connexion.
+* **Authentification** : Accès admin sécurisé par hachage **SHA-256**.
+* **Zéro Fuite** : Les noms des clients ne sont jamais exposés publiquement.
 
-## ✨ Fonctionnalités Clés
-* ✅ **Booking Intelligent** : Système de réservation avec sélection de services.
-* 📷 **Galerie Portfolio** : Importation et gestion de photos de réalisations (réservé admin).
-* 🌓 **Mode Sombre** : Interface élégante et adaptative.
-* 💾 **Zéro Serveur** : Utilisation exclusive du `LocalStorage` et des API Web natives.
-* 📍 **Contact & Map** : Coordonnées et carte interactive.
+## 🚀 Nouvelles Fonctionnalités
+* 🗓️ **Générateur de Calendrier** : Création automatique de fichiers `.ics` pour synchroniser les agendas clients.
+* 📧 **Workflow Email** : Déclenchement d'un e-mail de confirmation pré-rempli après chaque réservation.
+* 📷 **Portfolio Maîtrisé** : Importation de photos réservée uniquement au propriétaire du site.
+* ✅ **Feedback Client** : Message de confirmation visuel après validation du formulaire.
 
-## 🔒 Administration
-Pour éditer le contenu (ajouter des photos, supprimer des RDV) :
-1. Cliquez sur **Login**.
-2. Mot de passe par défaut : `admin123`.
+## 🛠️ Utilisation
+1. Ouvrez `index.html`.
+2. Les clients utilisent le formulaire normalement.
+3. Pour voir les rendez-vous ou modifier le portfolio :
+   - Cliquez sur **Login**.
+   - Mot de passe : `admin123`.
 
-## 🛠️ Technologies
-- **JavaScript ES6+** : Gestion du DOM et des fichiers (Blob, FileReader).
-- **Web Crypto API** : Hachage sécurisé SHA-256.
-- **CSS Grid & Flexbox** : Design ultra-responsive.
+## 💻 Stack Technique
+- HTML5, CSS3 (Grid/Flexbox).
+- Vanilla JavaScript (ES6+).
+- Web Crypto API pour la sécurité.
