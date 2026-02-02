@@ -99,6 +99,13 @@
     const UPLOAD_PRESET = "reservapro_preset"; 
     const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
+    // --- 📸 LISTE DES PHOTOS VISIBLES PAR TOUT LE MONDE ---
+    // Colle ici les URLs que tu récupères sur ton compte Cloudinary
+    const IMAGES_PERMANENTES = [
+        "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770046239/ya2pnlo9e86euwyaii0s.png",
+        //"https://res.cloudinary.com/dkfbcedvr/image/upload/v1700000000/exemple2.jpg"
+    ];
+
     let isAdmin = false;
     const HASH_ADMIN = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
 
@@ -110,12 +117,12 @@
 
     async function handleLogin() {
         if (!isAdmin) {
-            const p = prompt("Password :");
+            const p = prompt("Admin Password :");
             if (await hashPassword(p) === HASH_ADMIN) {
                 isAdmin = true;
                 document.body.classList.add('is-admin');
                 document.getElementById('btn-admin').innerHTML = "Logout";
-            } else { alert("Nop."); }
+            } else { alert("Refusé"); }
         } else {
             isAdmin = false;
             document.body.classList.remove('is-admin');
@@ -131,7 +138,7 @@
         document.getElementById('btn-' + t).classList.add('active');
     }
 
-    // --- ENVOI CLOUD ---
+    // --- UPLOAD VERS LE CLOUD ---
     document.getElementById('imageInput').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -147,27 +154,23 @@
             const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
             const data = await res.json();
             
-            if (data.secure_url) {
-                const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-                imgs.push(data.secure_url);
-                localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
-                displayPortfolio();
-            } else {
-                console.error("Erreur Cloudinary:", data);
-                alert("Erreur de réponse du serveur.");
-            }
-        } catch (err) { 
-            console.error(err);
-            alert("Erreur réseau."); 
-        } finally { 
-            btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; 
-        }
+            // On ajoute l'URL à ton stockage local pour que TU puisses la voir de suite
+            const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+            imgs.push(data.secure_url);
+            localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
+            
+            alert("Photo envoyée ! Pour qu'elle soit visible par tous, ajoute son lien dans le code (IMAGES_PERMANENTES).");
+            displayPortfolio();
+        } catch (err) { alert("Erreur d'envoi"); }
+        finally { btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; }
     });
 
     function displayPortfolio() {
-        const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-        const grid = document.getElementById('portfolioGrid');
-        grid.innerHTML = imgs.map((url, i) => `
+        // On mélange les images écrites dans le code + celles que tu as ajoutées en local
+        const imgsLocales = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+        const toutesLesImgs = [...new Set([...IMAGES_PERMANENTES, ...imgsLocales])];
+
+        document.getElementById('portfolioGrid').innerHTML = toutesLesImgs.map((url, i) => `
             <div class="portfolio-item">
                 <img src="${url}">
                 ${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}
@@ -176,13 +179,20 @@
     }
 
     function deleteImg(i) {
+        // Note: Cela ne supprimera que tes photos locales. 
+        // Les photos dans IMAGES_PERMANENTES doivent être enlevées du code directement.
         let imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
         imgs.splice(i, 1);
         localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
         displayPortfolio();
     }
 
-    document.getElementById('themeToggle').addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    });
+
     window.onload = () => displayPortfolio();
 </script>
 </body>
