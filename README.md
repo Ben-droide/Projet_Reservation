@@ -18,6 +18,11 @@ Application web moderne pour professionnels permettant de gérer des rendez-vous
    - Cliquez sur **Login**.
    - Entrez le mot de passe par défaut : `admin123`.
 
+   ## 🔒 Sécurité & Confidentialité
+* **Authentification** : Accès administrateur protégé par hachage SHA-256 via l'API Web Crypto.
+* **Intégrité** : Le mot de passe n'est jamais stocké en clair dans le code source.
+* **Limitation** : Système basé sur le client (Front-end), idéal pour un usage personnel et la protection contre les erreurs de manipulation des visiteurs.
+
 ## 🚀 Technologies
 - HTML5 / CSS3 (Grid & Flexbox)
 - JavaScript Vanilla (ES6)
