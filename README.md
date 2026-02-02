@@ -52,4 +52,4 @@ Pour que vos photos soient visibles par tous (et pas seulement sur votre navigat
 * **Icons & Fonts** : FontAwesome 6, Google Fonts (Poppins).
 
 ---
-© 2024 ReservaPro - Développé pour Benoit Renaux.
+© 2026 ReservaPro - Développé par Benoit Renaux.
