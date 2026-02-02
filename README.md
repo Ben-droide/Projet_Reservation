@@ -1,30 +1,26 @@
-# ✂️ ReservaPro - Plateforme de Réservation & Portfolio
+# ✂️ ReservaPro - Gestion Professionnelle & Portfolio
 
-Application web moderne pour professionnels permettant de gérer des rendez-vous, d'exposer ses créations et de faciliter le contact client.
+ReservaPro est une application web légère et sécurisée destinée aux professionnels (coiffeurs, barbiers, soins) pour gérer leurs rendez-vous et présenter leur travail.
 
 ## ✨ Fonctionnalités
-* 📅 **Réservation dynamique** : Prise de rendez-vous fluide avec choix du service et de l'horaire.
-* 📷 **Portfolio Interactif** : Galerie d'images permettant d'exposer vos travaux.
-* 🔐 **Système d'Authentification** : Mode Administrateur sécurisé par mot de passe pour gérer les contenus (Ajout/Suppression).
-* 🌓 **Mode Sombre** : Interface adaptable pour un confort visuel optimal.
-* 📍 **Contact & Map** : Coordonnées professionnelles et carte interactive Google Maps intégrée.
-* 💾 **Persistance locale** : Sauvegarde des données via `LocalStorage` (pas besoin de base de données externe).
-* 📱 **Design Responsive** : Expérience fluide sur smartphones, tablettes et ordinateurs.
+- 📅 **Gestion des RDV** : Formulaire de réservation avec sélection de services.
+- 📷 **Portfolio Administrable** : Galerie interactive pour exposer vos réalisations.
+- 🔐 **Sécurité SHA-256** : Authentification par hachage cryptographique pour protéger les fonctions d'édition.
+- 📍 **Localisation & Contact** : Intégration Google Maps et liens réseaux sociaux.
+- 🌓 **Mode Sombre** : Interface élégante adaptable selon la luminosité.
+- 💾 **Données Persistantes** : Utilisation du `LocalStorage` pour une sauvegarde côté client.
 
-## 🛠️ Installation
-1. Clonez le dépôt.
-2. Ouvrez `index.html` dans votre navigateur.
-3. Pour accéder aux fonctions de gestion :
-   - Cliquez sur **Login**.
-   - Entrez le mot de passe par défaut : `admin123`.
+## 🔒 Sécurité
+L'application utilise l'API **Web Crypto** du navigateur pour hacher le mot de passe admin en SHA-256. 
+- **Mot de passe par défaut** : `admin123`
+- Le mot de passe n'apparaît jamais en clair dans le code source.
 
-   ## 🔒 Sécurité & Confidentialité
-* **Authentification** : Accès administrateur protégé par hachage SHA-256 via l'API Web Crypto.
-* **Intégrité** : Le mot de passe n'est jamais stocké en clair dans le code source.
-* **Limitation** : Système basé sur le client (Front-end), idéal pour un usage personnel et la protection contre les erreurs de manipulation des visiteurs.
+## 🛠️ Technologies
+- **Front-end** : HTML5, CSS3 (Grid/Flexbox), JavaScript Vanilla.
+- **Design** : Google Fonts (Poppins), FontAwesome 6.
+- **Cryptographie** : SHA-256 (Web Crypto API).
 
-## 🚀 Technologies
-- HTML5 / CSS3 (Grid & Flexbox)
-- JavaScript Vanilla (ES6)
-- FontAwesome (Iconographie)
-- Google Fonts (Poppins)
+## 🚀 Utilisation
+1. Clonez le projet ou téléchargez le fichier `index.html`.
+2. Ouvrez le fichier dans un navigateur moderne.
+3. Pour ajouter des photos ou supprimer des rendez-vous, cliquez sur **Login** et entrez le mot de passe.
