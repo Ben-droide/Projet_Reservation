@@ -28,6 +28,7 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 ### 🔐 Sécurité
 * **Authentification Admin** : Accès au back-office protégé par hachage cryptographique **SHA-256** (Web Crypto API).
 * **Gestion des Accès** : Possibilité de modifier le mot de passe administrateur directement depuis l'interface.
+* **Gestion d'Équipe** : Le Gérant peut créer des accès individuels pour chaque professionnel (Nom + Mot de passe).
 * **Auto-Logout** : Déconnexion automatique après 15 minutes d'inactivité pour protéger l'accès.
 * **SuperAdmin** : Protection renforcée pour la suppression des logs (Mot de passe dédié).
 * **Protection XSS** : Politique de sécurité de contenu (CSP) stricte pour bloquer les scripts malveillants.
@@ -68,9 +69,9 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 2. **Installation Mobile** : Ouvrez l'URL sur Chrome (Android) ou Safari (iOS) et sélectionnez "Ajouter à l'écran d'accueil".
 3. **Administration** : 
     * Cliquez sur **Login**.
-    * Mot de passe par défaut : `admin123`.
-    * *Note : Vous pouvez changer ce mot de passe dans l'onglet Admin (icône clé).*
-    * **SuperAdmin** (Purge des logs) : `superadmin123` (Modifiable via le bouton ROOT).
+    * **Gérant** : Identifiant `admin` / Mot de passe `superadmin123`.
+    * **Équipe** : Utilisez le Nom et le Mot de passe définis par le Gérant.
+    * *Note : Le mot de passe Gérant est modifiable via le bouton ROOT.*
 
 ---
 

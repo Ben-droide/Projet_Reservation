@@ -3,13 +3,17 @@
 const STORAGE_KEY_PWD = 'reservaPro_adminHash';
 const STORAGE_KEY_SUPER_PWD = 'reservaPro_superHash';
 const DEFAULT_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // admin123
-const DEFAULT_SUPER_HASH = "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2"; // superadmin123
+const DEFAULT_SUPER_HASH = "e34f92a20532a873cb3184398070b4b82a8fa29cf48572c203dc5f0fa6158231"; // superadmin123
 const STORAGE_KEY_HOURS = 'reservaPro_hours';
 const STORAGE_KEY_LOGS = 'reservaPro_logs';
 const STORAGE_KEY_VACATION = 'reservaPro_vacation';
 const STORAGE_KEY_BLACKLIST = 'reservaPro_blacklist';
+const STORAGE_KEY_PROS = 'reservaPro_team';
+const STORAGE_KEY_ADMIN_USER = 'reservaPro_adminUser';
+const DEFAULT_ADMIN_USER = 'admin';
 
-let isAdmin = false;
+let userRole = 'client'; // 'client', 'pro', 'admin'
+let currentProId = null;
 let sessionTimeout;
 
 // Sécurité : Échapper les caractères HTML pour éviter les failles XSS
@@ -30,30 +34,43 @@ function getSuperAdminHash() {
     return localStorage.getItem(STORAGE_KEY_SUPER_PWD) || DEFAULT_SUPER_HASH;
 }
 
+function getAdminUser() {
+    return localStorage.getItem(STORAGE_KEY_ADMIN_USER) || DEFAULT_ADMIN_USER;
+}
+
 async function hashPassword(str) {
     const utf8 = new TextEncoder().encode(str);
     const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
     return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function getProfessionals() {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_PROS)) || [];
+}
+
+function getCurrentProId() {
+    return currentProId;
+}
+
 // Gestion de la session (Auto-Logout)
 function startSessionTimer() {
     clearTimeout(sessionTimeout);
     sessionTimeout = setTimeout(() => {
-        if(isAdmin) { customAlert("Session expirée par sécurité (15min d'inactivité).").then(() => handleLogin()); }
+        if(userRole !== 'client') { customAlert("Session expirée par sécurité (15min d'inactivité).").then(() => handleLogin()); }
     }, 15 * 60 * 1000); // 15 minutes
 }
 function stopSessionTimer() { clearTimeout(sessionTimeout); }
-function resetSessionTimer() { if(isAdmin) startSessionTimer(); }
+function resetSessionTimer() { if(userRole !== 'client') startSessionTimer(); }
 ['click', 'keydown'].forEach(evt => document.addEventListener(evt, resetSessionTimer, { passive: true }));
 
 // Fonction de prompt personnalisée (Remplace window.prompt)
-function customPrompt(title, message, isPassword = true) {
+function customPrompt(title, message, isPassword = true, isLogin = false) {
     return new Promise((resolve) => {
         const modal = document.getElementById('authModal');
         const titleEl = document.getElementById('authTitle');
         const msgEl = document.getElementById('authMessage');
         const inputEl = document.getElementById('authInput');
+        const userEl = document.getElementById('authUser');
         const submitBtn = document.getElementById('authSubmit');
         const cancelBtn = document.getElementById('authCancel');
 
@@ -61,22 +78,42 @@ function customPrompt(title, message, isPassword = true) {
         msgEl.innerText = message;
         inputEl.value = '';
         inputEl.type = isPassword ? 'password' : 'text';
+        userEl.value = '';
+
+        if (isLogin) {
+            userEl.style.display = 'block';
+            setTimeout(() => userEl.focus(), 50);
+        } else {
+            userEl.style.display = 'none';
+            setTimeout(() => inputEl.focus(), 50);
+        }
 
         const close = (val) => {
             modal.classList.remove('active');
             inputEl.onkeydown = null;
+            userEl.onkeydown = null;
             submitBtn.onclick = null;
             cancelBtn.onclick = null;
             resolve(val);
         };
 
-        modal.classList.add('active');
-        inputEl.focus();
+        const submit = () => {
+            if (isLogin) close({ user: userEl.value, pass: inputEl.value });
+            else close(inputEl.value);
+        };
 
-        submitBtn.onclick = () => close(inputEl.value);
+        modal.classList.add('active');
+
+        submitBtn.onclick = submit;
         cancelBtn.onclick = () => close(null);
+        
         inputEl.onkeydown = (e) => {
-            if (e.key === 'Enter') close(inputEl.value);
+            if (e.key === 'Enter') submit();
+            if (e.key === 'Escape') close(null);
+        };
+
+        userEl.onkeydown = (e) => {
+            if (e.key === 'Enter') inputEl.focus();
             if (e.key === 'Escape') close(null);
         };
     });
@@ -158,24 +195,77 @@ function playAccessDeniedSound() {
 }
 
 async function handleLogin() {
-    if (!isAdmin) {
-        const p = await customPrompt("ADMIN_LOGIN", "Veuillez vous identifier :");
-        if (p && await hashPassword(p) === getAdminHash()) {
-            isAdmin = true;
-            document.body.classList.add('is-admin');
-            document.getElementById('btn-admin').innerHTML = "Logout";
+    if (userRole === 'client') {
+        const creds = await customPrompt("LOGIN", "Identifiant & Mot de passe :", true, true);
+        if (!creds || !creds.pass) return;
+
+        const hash = await hashPassword(creds.pass);
+        const user = creds.user ? creds.user.trim() : '';
+        let success = false;
+        
+        // Vérification Gérant (Admin) - Insensible à la casse pour l'identifiant
+        if (user.toLowerCase() === getAdminUser().toLowerCase() && hash === getSuperAdminHash()) {
+            userRole = 'admin';
+            currentProId = 'admin';
+            document.body.classList.add('is-admin', 'role-admin');
+            document.getElementById('btn-admin').innerHTML = "Déconnexion (Gérant)";
+            success = true;
+        } else {
+            // Vérification des comptes Pros
+            const pros = getProfessionals();
+            // Recherche insensible à la casse pour le nom d'utilisateur
+            const foundPro = pros.find(pro => pro.name.toLowerCase() === user.toLowerCase() && pro.hash === hash);
+            
+            if (foundPro) {
+                userRole = 'pro';
+                currentProId = foundPro.id;
+                document.body.classList.add('is-admin', 'role-pro');
+                const imgTag = foundPro.photo ? `<img src="${foundPro.photo}" style="width:20px; height:20px; border-radius:50%; vertical-align:middle; margin-right:6px; border:1px solid rgba(255,255,255,0.5);">` : '';
+                document.getElementById('btn-admin').innerHTML = `${imgTag}Déconnexion (${foundPro.name})`;
+                success = true;
+
+                if (foundPro.mustChangePassword) {
+                    await customAlert("🔒 Sécurité : Première connexion.\nVous devez changer votre mot de passe.");
+                    const changed = await changePassword();
+                    if (!changed) {
+                        userRole = 'client';
+                        currentProId = null;
+                        document.body.classList.remove('is-admin', 'role-admin', 'role-pro');
+                        document.getElementById('btn-admin').innerHTML = "Login";
+                        await customAlert("Connexion refusée : Mot de passe non modifié.");
+                        return;
+                    }
+                }
+            }
+            
+            // Mécanisme de secours : Si l'utilisateur tente les identifiants par défaut mais qu'un mot de passe personnalisé bloque l'accès
+            if (!success && user.toLowerCase() === DEFAULT_ADMIN_USER && hash === DEFAULT_SUPER_HASH) {
+                if (getSuperAdminHash() !== DEFAULT_SUPER_HASH) {
+                    if (await customConfirm("Un mot de passe personnalisé est actif.\nVoulez-vous le réinitialiser pour utiliser 'superadmin123' ?")) {
+                        localStorage.removeItem(STORAGE_KEY_SUPER_PWD);
+                        localStorage.removeItem(STORAGE_KEY_ADMIN_USER);
+                        await customAlert("Réinitialisation effectuée. Veuillez réessayer.");
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (success) {
             switchTab('admin-panel');
             startSessionTimer();
-            if(typeof addLog === 'function') addLog('Connexion', 'Succès');
+            if(typeof addLog === 'function') addLog('Connexion', `Succès (${userRole})`);
             playAccessGrantedSound();
-        } else if (p !== null) { 
+            if(typeof renderTeamManagement === 'function') renderTeamManagement();
+        } else {
             playAccessDeniedSound();
-            await customAlert("Refusé"); 
-            if(typeof addLog === 'function') addLog('Connexion', 'Échec (Mot de passe incorrect)'); 
+            await customAlert("Identifiant incorrect.");
+            if(typeof addLog === 'function') addLog('Connexion', 'Échec');
         }
     } else {
-        isAdmin = false;
-        document.body.classList.remove('is-admin');
+        userRole = 'client';
+        currentProId = null;
+        document.body.classList.remove('is-admin', 'role-admin', 'role-pro');
         document.getElementById('btn-admin').innerHTML = "Login";
         stopSessionTimer();
         switchTab('booking');
@@ -190,27 +280,95 @@ async function handleLogin() {
 
 async function changePassword() {
     const currentP = await customPrompt("SECURITY_CHECK", "Entrez le mot de passe actuel :");
-    if (!currentP) return;
+    if (!currentP) return false;
     
-    if (await hashPassword(currentP) !== getAdminHash()) {
-        await customAlert("Mot de passe actuel incorrect.");
-        return;
+    const currentHash = await hashPassword(currentP);
+
+    if (userRole === 'admin') {
+        if (currentHash !== getAdminHash()) {
+            await customAlert("Mot de passe actuel incorrect.");
+            return false;
+        }
+    } else if (userRole === 'pro') {
+        const pros = getProfessionals();
+        const pro = pros.find(p => p.id === currentProId);
+        if (!pro || pro.hash !== currentHash) {
+            await customAlert("Mot de passe actuel incorrect.");
+            return false;
+        }
     }
 
     const newP = await customPrompt("NEW_CREDENTIALS", "Nouveau mot de passe (min. 8 caractères) :");
-    if (!newP) return;
+    if (!newP) return false;
 
     if (newP.length < 8) {
         await customAlert("Sécurité : Le mot de passe doit contenir au moins 8 caractères.");
-        return;
+        return false;
     }
     
-    localStorage.setItem(STORAGE_KEY_PWD, await hashPassword(newP));
-    if(typeof addLog === 'function') addLog('Sécurité', 'Mot de passe modifié');
+    const newHash = await hashPassword(newP);
+
+    if (userRole === 'admin') {
+        localStorage.setItem(STORAGE_KEY_PWD, newHash);
+        if(typeof addLog === 'function') addLog('Sécurité', 'Mot de passe Admin modifié');
+    } else if (userRole === 'pro') {
+        const pros = getProfessionals();
+        const index = pros.findIndex(p => p.id === currentProId);
+        if (index !== -1) {
+            pros[index].hash = newHash;
+            pros[index].mustChangePassword = false;
+            localStorage.setItem(STORAGE_KEY_PROS, JSON.stringify(pros));
+            if(typeof addLog === 'function') addLog('Sécurité', `Mot de passe modifié pour ${pros[index].name}`);
+        }
+    }
+    
     await customAlert("Mot de passe modifié avec succès !");
+    return true;
+}
+
+async function createProfessional() {
+    if (userRole !== 'admin' && userRole !== 'pro') return customAlert("Action réservée à l'équipe.");
+    
+    const name = await customPrompt("NOUVEAU PRO", "Nom du professionnel :", false); // false = input texte
+    if (!name) return;
+
+    const pwd = await customPrompt("SECURITE", `Mot de passe pour ${name} :`, true);
+    if (!pwd) return;
+
+    if (pwd.length < 4) return customAlert("Mot de passe trop court.");
+
+    const hash = await hashPassword(pwd);
+    const pros = getProfessionals();
+    
+    // Vérification doublon nom
+    if (pros.some(p => p.name === name)) return customAlert("Ce nom existe déjà.");
+
+    pros.push({ id: Date.now(), name, hash, mustChangePassword: true });
+    localStorage.setItem(STORAGE_KEY_PROS, JSON.stringify(pros));
+    
+    if(typeof addLog === 'function') addLog('Gestion Équipe', `Création compte : ${name}`);
+    await customAlert(`Compte créé pour ${name} !`);
+    if(typeof renderTeamManagement === 'function') renderTeamManagement();
+}
+
+async function deleteProfessional(id) {
+    if (userRole !== 'admin') return customAlert("Action réservée au Gérant.");
+    if (!await customConfirm("Supprimer ce compte professionnel ?")) return;
+
+    let pros = getProfessionals();
+    const pro = pros.find(p => p.id === id);
+    pros = pros.filter(p => p.id !== id);
+    localStorage.setItem(STORAGE_KEY_PROS, JSON.stringify(pros));
+    
+    if(typeof addLog === 'function') addLog('Gestion Équipe', `Suppression compte : ${pro ? pro.name : id}`);
+    if(typeof renderTeamManagement === 'function') renderTeamManagement();
 }
 
 async function changeSuperPassword() {
+    if (userRole !== 'admin') {
+        await customAlert("Accès refusé. Réservé à l'Administrateur.");
+        return;
+    }
     const currentP = await customPrompt("ROOT_ACCESS", "SuperAdmin : Entrez le mot de passe actuel :");
     if (!currentP) return;
     
@@ -270,7 +428,7 @@ async function checkBookingSecurity(phone, date) {
 
     // Sécurité : Anti-Spam (1 minute entre chaque réservation)
     const lastBook = localStorage.getItem('reservaPro_lastBook');
-    if (!isAdmin && lastBook && (Date.now() - lastBook) < 60000) {
+    if (userRole === 'client' && lastBook && (Date.now() - lastBook) < 60000) {
         await customAlert("Veuillez patienter quelques instants avant de reprendre rendez-vous.");
         return false;
     }

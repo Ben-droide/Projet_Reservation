@@ -132,7 +132,7 @@ function addLog(action, details = '') {
 }
 
 function displayLogs() {
-    if (!isAdmin) return;
+    if (userRole !== 'admin') return; // Seul l'admin voit les logs
     const container = document.getElementById('adminLogs');
     const logs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [];
     
@@ -148,7 +148,7 @@ function displayLogs() {
 }
 
 function displayBlacklist() {
-    if (!isAdmin) return;
+    if (userRole === 'client') return; // Pro et Admin peuvent voir la blacklist
     const container = document.getElementById('blacklistContainer');
     const blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
     
@@ -199,6 +199,10 @@ async function removeFromBlacklist(phone) {
 function renderPricingWidget() {
     const container = document.getElementById('pricingInputs');
     if(!container) return;
+    if(userRole !== 'admin') {
+        container.innerHTML = '<div style="text-align:center; color:#8b949e; padding:10px; font-style:italic;">Configuration des tarifs réservée à l\'administrateur.</div>';
+        return;
+    }
     container.innerHTML = Object.entries(prices).map(([service, price]) => `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <label style="font-size:0.8rem; color:#8b949e;">${service}</label>
@@ -208,6 +212,7 @@ function renderPricingWidget() {
 }
 
 async function savePrices() {
+    if(userRole !== 'admin') return customAlert("Action réservée à l'administrateur.");
     const inputs = document.querySelectorAll('.price-input');
     inputs.forEach(input => { prices[input.dataset.service] = parseFloat(input.value) || 0; });
     localStorage.setItem(STORAGE_KEY_PRICES, JSON.stringify(prices));
@@ -218,7 +223,7 @@ async function savePrices() {
 
 function renderRevenueChart() {
     const container = document.getElementById('revenueChart');
-    if (!container) return;
+    if (!container || userRole !== 'admin') { if(container) container.innerHTML = ''; return; }
 
     const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
     const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -252,8 +257,82 @@ function renderRevenueChart() {
     }).join('');
 }
 
+async function handleProPhotoUpload(id, input) {
+    // Sécurité : Vérifier que c'est bien le pro connecté qui modifie son profil
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if (userRole !== 'pro' || currentId !== id) {
+        await customAlert("Vous ne pouvez modifier que votre propre photo de profil.");
+        return;
+    }
+    const file = input.files[0];
+    if (!file) return;
+    try {
+        // Compression avatar (150px suffisent pour une icône)
+        const base64Img = await compressImage(file, 150, 0.7);
+        let pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+        const index = pros.findIndex(p => p.id === id);
+        if (index !== -1) {
+            pros[index].photo = base64Img;
+            localStorage.setItem('reservaPro_team', JSON.stringify(pros));
+            addLog('Gestion Équipe', `Photo mise à jour : ${pros[index].name}`);
+            renderTeamManagement();
+        }
+    } catch (err) { await customAlert("Erreur upload : " + err.message); }
+}
+
+function renderTeamManagement() {
+    // Admin et Pros peuvent voir ce panneau
+    if (userRole !== 'admin' && userRole !== 'pro') {
+        const existing = document.getElementById('teamCard');
+        if (existing) existing.remove();
+        return;
+    }
+
+    const grid = document.querySelector('.dashboard-grid');
+    if (!grid) return;
+
+    let card = document.getElementById('teamCard');
+    if (!card) {
+        card = document.createElement('div');
+        card.id = 'teamCard';
+        card.className = 'dashboard-card';
+        grid.appendChild(card);
+    }
+
+    const prosList = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+
+    let html = `<h3><i class="fa-solid fa-users-gear"></i> Équipe</h3><div style="margin-bottom:15px; max-height:150px; overflow-y:auto;">`;
+
+    if (prosList.length === 0) {
+        html += `<div style="color:#8b949e; font-style:italic; font-size:0.8rem;">Aucun compte pro configuré.</div>`;
+    } else {
+        html += prosList.map(p => {
+            const isMe = (userRole === 'pro' && p.id === currentId);
+            const photoHtml = p.photo 
+                ? `<img src="${p.photo}" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:1px solid var(--hacker-accent);">` 
+                : `<div style="width:100%; height:100%; border-radius:50%; background:#21262d; display:flex; align-items:center; justify-content:center; border:1px solid var(--hacker-border);"><i class="fa-solid fa-camera" style="color:#8b949e; font-size:0.7rem;"></i></div>`;
+            
+            const avatarBlock = isMe 
+                ? `<div style="position:relative; width:32px; height:32px; cursor:pointer;" onclick="document.getElementById('upload-pro-${p.id}').click()" title="Modifier ma photo">${photoHtml}</div><input type="file" id="upload-pro-${p.id}" hidden accept="image/*" onchange="handleProPhotoUpload(${p.id}, this)">`
+                : `<div style="position:relative; width:32px; height:32px; opacity:0.8;">${photoHtml}</div>`;
+
+            return `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--hacker-border);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    ${avatarBlock}
+                    <span style="color:var(--hacker-text); font-weight:bold;">${p.name} ${isMe ? '<span style="font-size:0.7rem; color:var(--hacker-accent);">(Moi)</span>' : ''}</span>
+                </div>
+                ${userRole === 'admin' ? `<button onclick="deleteProfessional(${p.id})" class="btn-del" style="position:static; width:24px; height:24px;" title="Supprimer le compte">×</button>` : ''}
+            </div>`;
+        }).join('');
+    }
+    html += `</div><button onclick="createProfessional()" class="btn-hacker" style="width:100%;"><i class="fa-solid fa-user-plus"></i> Ajouter un Pro</button>`;
+    card.innerHTML = html;
+}
+
 function displayAdminRdv() {
-    if (!isAdmin) return;
+    if (userRole === 'client') return;
     const list = document.getElementById('adminRdvList');
     const statsContainer = document.getElementById('adminStats');
     const searchTerm = document.getElementById('rdvSearch').value.toLowerCase();
@@ -277,15 +356,17 @@ function displayAdminRdv() {
     displayLogs(); // Mise à jour des logs en même temps
     displayBlacklist();
     renderRevenueChart(); // Mise à jour du graphique
+    renderTeamManagement(); // Mise à jour de l'équipe
     
     const maxVal = Math.max(...Object.values(stats), 1);
     
-    const revenueHtml = `<div class="stat-box" style="border-color:var(--hacker-accent);">
-        <span class="stat-number" style="color:var(--hacker-accent);">${dailyRevenue}€</span>
-        <span class="stat-label">CA DU JOUR</span>
-    </div>`;
+    // Affichage conditionnel du CA (Admin seulement)
+    let statsHtml = '';
+    if (userRole === 'admin') {
+        statsHtml += `<div class="stat-box" style="border-color:var(--hacker-accent);"><span class="stat-number" style="color:var(--hacker-accent);">${dailyRevenue}€</span><span class="stat-label">CA DU JOUR</span></div>`;
+    }
 
-    statsContainer.innerHTML = revenueHtml + (Object.entries(stats).map(([k, v]) => {
+    statsHtml += (Object.entries(stats).map(([k, v]) => {
         const percent = (v / maxVal) * 100;
         return `<div class="stat-box" style="align-items: stretch; text-align: left;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end;">
@@ -293,8 +374,10 @@ function displayAdminRdv() {
                 <span class="stat-number" style="font-size:1.2rem;">${v}</span>
             </div>
             <div class="stat-bar-container"><div class="stat-bar" style="width:${percent}%"></div></div>
-        </div>`;
-    }).join('') || '');
+        </div>`; 
+    }).join(''));
+
+    statsContainer.innerHTML = statsHtml;
 
     if (searchTerm) {
         rdvs = rdvs.filter(r => r.name.toLowerCase().includes(searchTerm));
@@ -392,7 +475,7 @@ function cancelEdit() {
     document.getElementById('btnCancelEdit').style.display = 'none';
     document.querySelectorAll('input[name="rdvTags"]').forEach(cb => cb.checked = false);
 
-    if (wasEditing && isAdmin) {
+    if (wasEditing && userRole !== 'client') {
         switchTab('admin-panel');
     }
 }
@@ -429,6 +512,7 @@ function checkTodayRdv() {
 }
 
 async function toggleVacationMode() {
+    if(userRole !== 'admin') return customAlert("Action réservée à l'administrateur.");
     const current = localStorage.getItem(STORAGE_KEY_VACATION) === 'true';
     if(!await customConfirm(`Voulez-vous ${current ? 'désactiver' : 'activer'} le mode vacances ?`)) return;
     
@@ -468,6 +552,7 @@ function updateVacationUI() {
 }
 
 async function saveHours() {
+    if(userRole !== 'admin') return customAlert("Action réservée à l'administrateur.");
     const open = document.getElementById('adminOpenTime').value;
     const close = document.getElementById('adminCloseTime').value;
     if(!open || !close) return await customAlert("Veuillez remplir les deux horaires.");
@@ -487,6 +572,7 @@ function loadHours() {
     if(adminOpen && adminClose) {
         adminOpen.value = hours.open;
         adminClose.value = hours.close;
+        if(userRole !== 'admin') { adminOpen.disabled = true; adminClose.disabled = true; }
     }
 
     // Contact display
@@ -497,6 +583,7 @@ function loadHours() {
 }
 
 function exportData() {
+    if(userRole !== 'admin') return customAlert("Action réservée à l'administrateur.");
     const data = {
         rdvs: JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [],
         portfolio: JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [],
@@ -504,6 +591,7 @@ function exportData() {
         logs: JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [],
         vacation: localStorage.getItem(STORAGE_KEY_VACATION),
         blacklist: JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [],
+        team: JSON.parse(localStorage.getItem(STORAGE_KEY_PROS)) || [],
         prices: JSON.parse(localStorage.getItem(STORAGE_KEY_PRICES)) || DEFAULT_PRICES
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -519,6 +607,7 @@ function exportData() {
 }
 
 async function importData(input) {
+    if(userRole !== 'admin') return customAlert("Action réservée à l'administrateur.");
     const file = input.files[0];
     if (!file) return;
 
@@ -539,6 +628,7 @@ async function importData(input) {
             if(data.logs) localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(data.logs));
             if(data.vacation) localStorage.setItem(STORAGE_KEY_VACATION, data.vacation);
             if(data.blacklist) localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(data.blacklist));
+            if(data.team) localStorage.setItem(STORAGE_KEY_PROS, JSON.stringify(data.team));
             if(data.prices) {
                 localStorage.setItem(STORAGE_KEY_PRICES, JSON.stringify(data.prices));
                 prices = data.prices;
@@ -552,6 +642,7 @@ async function importData(input) {
             updateVacationUI();
             displayBlacklist();
             renderPricingWidget();
+            renderTeamManagement();
         } catch (err) { customAlert("Erreur d'importation : " + err.message); }
         input.value = '';
     };
@@ -621,7 +712,7 @@ function displayPortfolio() {
     grid.innerHTML = imgs.map((url, i) => `
         <div class="portfolio-item" onclick="openLightbox('${url.replace(/'/g, "\\'")}')">
             <img src="${url}" loading="lazy" alt="Réalisation">
-            ${isAdmin ? `<button class="btn-del" onclick="event.stopPropagation(); deleteImg(${i})" aria-label="Supprimer l'image">×</button>` : ''}
+            ${userRole !== 'client' ? `<button class="btn-del" onclick="event.stopPropagation(); deleteImg(${i})" aria-label="Supprimer l'image">×</button>` : ''}
         </div>`
     ).join('');
 }
