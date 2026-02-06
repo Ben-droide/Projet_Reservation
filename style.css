@@ -404,3 +404,110 @@ body.theme-gothic #nature-effects-container {
     50% { transform: translateY(50vh) rotate(180deg) translateX(30px); }
     100% { transform: translateY(110vh) rotate(360deg) translateX(-30px); opacity: 0; }
 }
+
+/* --- RESPONSIVE DESIGN (MOBILE & TABLET) --- */
+@media screen and (max-width: 1024px) {
+    .container { width: 95%; margin: 15px auto; }
+    .dashboard-grid { gap: 20px; }
+}
+
+@media screen and (max-width: 768px) {
+    /* Navigation Défilable */
+    nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 10px 0;
+        -webkit-overflow-scrolling: touch; /* Scroll fluide iOS */
+        width: 100%;
+    }
+    nav button {
+        flex: 0 0 auto; /* Ne pas écraser les boutons */
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Dashboard Layout : Empilement */
+    .dashboard-grid {
+        grid-template-columns: 1fr; 
+    }
+    .dashboard-card {
+        padding: 20px; 
+    }
+    
+    /* Dashboard Header : Réorganisation */
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 15px !important;
+    }
+    .dashboard-header h2 {
+        margin-right: 0 !important;
+        font-size: 1.5rem !important;
+    }
+    .dashboard-header > div {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 boutons par ligne */
+        gap: 10px;
+    }
+    .dashboard-header button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Liste RDV : Verticalisation */
+    .rdv-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .rdv-item > div:last-child {
+        width: 100%;
+        justify-content: flex-end;
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+        margin-top: 5px;
+    }
+    
+    /* Formulaires : Lisibilité */
+    .form-group input, .form-group select, .form-group textarea {
+        font-size: 16px; /* Évite le zoom auto sur iPhone */
+    }
+    
+    /* Configuration Prix & Équipe */
+    .pricing-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .pricing-item input {
+        width: 100% !important;
+        text-align: left !important;
+        margin-top: 5px;
+    }
+    
+    .team-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .team-item > div:first-child {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .team-item button.btn-del {
+        align-self: flex-end;
+    }
+    
+    /* Profil Insta Mobile */
+    .insta-header { flex-direction: column; text-align: center; }
+    .insta-info { width: 100%; }
+    .insta-top-row { justify-content: center; }
+    .insta-stats { justify-content: center; gap: 15px; font-size: 0.9rem; }
+    .insta-grid-nav { gap: 20px; }
+}
+
+@media screen and (max-width: 480px) {
+    .dashboard-header > div {
+        grid-template-columns: 1fr; /* 1 bouton par ligne sur très petits écrans */
+    }
+    .portfolio-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
