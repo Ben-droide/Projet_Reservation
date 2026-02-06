@@ -1,4 +1,4 @@
-# ✂️ ReservaPro v12.0 — Local Edition
+# ✂️ ReservaPro v12.5 — Nature & Themes Edition
 
 **ReservaPro** est une application web métier (PWA) conçue pour offrir aux coiffeurs et barbiers une solution de gestion robuste, 100% gratuite et totalement indépendante des abonnements tiers.
 
@@ -25,6 +25,12 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Gestion Autonome** : Ajout et suppression de photos instantanés depuis l'interface admin.
 * **Lightbox HD** : Visualisation des réalisations en mode immersion.
 
+### 🎨 Personnalisation & Thèmes
+* **Thèmes Dynamiques** : Choix d'ambiance pour les professionnels (Nature 🌿, Girly 🌸, Cyberpunk 🤖, Gothique 🦇).
+* **Immersion Sonore** : Effets sonores de connexion adaptés au thème choisi.
+* **Effets Visuels** : Animation de feuilles tombantes pour le thème Nature.
+* **Profil Pro** : Page de profil publique style "Réseau Social" pour chaque coiffeur (Bio, Stats, Portfolio).
+
 ### 🔐 Sécurité
 * **Authentification Admin** : Accès au back-office protégé par hachage cryptographique **SHA-256** (Web Crypto API).
 * **Gestion des Accès** : Possibilité de modifier le mot de passe administrateur directement depuis l'interface.
@@ -41,10 +47,12 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Badge Intelligent** : L'indicateur de rendez-vous passe au vert lorsque tous les clients de la journée ont été honorés.
 * **Animation Live** : Effet de rebond sur le badge de notification lors de l'arrivée d'un rendez-vous urgent (jour même).
 * **Rappel SMS** : Bouton d'action rapide pour ouvrir l'application SMS avec un message de rappel pré-rempli (Nom + Date).
+* **Horloge Live** : Affichage de l'heure et du temps de travail restant en temps réel avec barre de progression.
+* **Pause Déjeuner** : Bouton rapide pour déduire 1h du compteur journalier.
 * **Blacklist** : Possibilité de bannir des numéros de téléphone pour empêcher les réservations indésirables.
 * **Suivi CA** : Calcul automatique et affichage du chiffre d'affaires estimé de la journée dans le tableau de bord.
 * **Graphique Hebdomadaire** : Visualisation interactive des revenus sur les 7 derniers jours.
-* **Impression Planning** : Mise en page spécifique pour imprimer la liste des rendez-vous du jour.
+* **Impression Planning** : Mise en page spécifique avec en-tête personnalisé (Logo + Date) pour imprimer la liste du jour.
 * **Tarifs Dynamiques** : Configuration des prix des prestations directement depuis l'interface d'administration.
 * **Tags Clients** : Catégorisation visuelle des clients (VIP, Nouveau, Retardataire) visible uniquement par l'admin.
 * **Interface Authentification** : Mire de connexion sécurisée et stylisée (Modal) remplaçant les alertes navigateur.
