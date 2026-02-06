@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4361ee">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; img-src 'self' data: https://res.cloudinary.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; frame-src https://www.google.com; object-src 'none'; base-uri 'self';">
     <meta name="description" content="Réservez votre rendez-vous coiffure en ligne et découvrez mes dernières réalisations. Application simple et rapide.">
     <title>ReservaPro | Portfolio Cloud</title>
     
@@ -30,6 +31,7 @@
         nav button { background: transparent; border: none; color: white; padding: 10px 15px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
         nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
         #btn-admin { color: #ffbe0b; border: 1px solid #ffbe0b; border-radius: 20px; margin-left: 10px; position: relative; }
+        #btn-admin-panel { position: relative; }
         .badge-count { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--dark); display: none; min-width: 20px; text-align: center; }
 
         header { background-color: var(--dark); color: white; padding: 20px 0; text-align: center; position: relative; }
@@ -68,6 +70,67 @@
         .rdv-info h4 { margin: 0 0 5px 0; }
         .rdv-info p { margin: 0; font-size: 0.9rem; color: var(--text-sub); }
         .empty-msg { text-align: center; color: var(--text-sub); font-style: italic; padding: 20px; }
+
+        .log-item { font-size: 0.8rem; padding: 8px; border-bottom: 1px solid var(--border); color: var(--text-sub); }
+        .log-date { font-size: 0.7rem; color: #999; display: block; margin-bottom: 2px; }
+
+        /* --- DASHBOARD HACKER THEME --- */
+        #admin-panel-section {
+            --hacker-bg: #0d1117; --hacker-card: #161b22; --hacker-border: #30363d;
+            --hacker-text: #c9d1d9; --hacker-accent: #58a6ff; --hacker-green: #2ea043; --hacker-red: #da3633;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .dashboard-card {
+            background: var(--hacker-card); border: 1px solid var(--hacker-border); border-radius: 6px;
+            padding: 20px; color: var(--hacker-text); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .dashboard-card h3 {
+            color: var(--hacker-accent); border-bottom: 1px solid var(--hacker-border); padding-bottom: 10px;
+            margin-top: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
+        }
+        .stat-box {
+            background: var(--hacker-bg); border: 1px solid var(--hacker-border); padding: 15px; border-radius: 4px;
+            text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .stat-number { font-size: 1.8rem; color: var(--hacker-green); font-weight: bold; line-height: 1; }
+        .stat-label { font-size: 0.75rem; color: #8b949e; margin-top: 5px; text-transform: uppercase; }
+        
+        .btn-hacker {
+            background: var(--hacker-green); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px;
+            border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: bold; transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-hacker:hover { background: #3fb950; }
+        .btn-hacker-danger { background: var(--hacker-red); }
+        .btn-hacker-danger:hover { background: #f85149; }
+        
+        .hacker-input {
+            background: var(--hacker-bg); border: 1px solid var(--hacker-border); color: var(--hacker-text);
+            padding: 8px; border-radius: 4px; font-family: inherit; width: 100%;
+        }
+        .hacker-input:focus { border-color: var(--hacker-accent); outline: none; }
+
+        /* Override RDV items for hacker theme */
+        #adminRdvList .rdv-item {
+            background: var(--hacker-bg); border-left: 3px solid var(--hacker-accent);
+            border-radius: 4px; margin-bottom: 10px; color: var(--hacker-text); border-top: 1px solid var(--hacker-border); border-right: 1px solid var(--hacker-border); border-bottom: 1px solid var(--hacker-border);
+        }
+        #adminRdvList .rdv-item h4 { color: var(--hacker-text); }
+        #adminRdvList .rdv-item p { color: #8b949e; }
+        #adminLogs {
+            background: #0d1117; border: 1px solid #30363d; padding: 10px; font-family: 'Consolas', monospace; font-size: 0.8rem; color: #2ea043;
+        }
+
+        .stat-bar-container { width: 100%; background: #21262d; height: 4px; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .stat-bar { height: 100%; background: var(--hacker-green); width: 0%; transition: width 0.5s ease-out; }
+
+        /* Animation Badge */
+        @keyframes bounce {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
+        .bounce { animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     </style>
 </head>
 <body>
@@ -149,31 +212,70 @@
 </div>
 
 <div id="admin-panel-section" class="container">
-    <div class="card admin-only">
-        <h3>⚙️ Configuration</h3>
-        <div class="form-group">
-            <label>Horaires d'ouverture (Tous les jours)</label>
-            <div style="display:flex; gap:10px;">
-                <input type="time" id="adminOpenTime" required>
-                <span style="align-self:center">à</span>
-                <input type="time" id="adminCloseTime" required>
-            </div>
+    <!-- Header with Title and Global Actions -->
+    <div class="dashboard-header admin-only" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h2 style="margin:0; color:var(--primary); font-family:'Courier New', monospace; font-weight:bold;">> ADMIN_CONSOLE</h2>
+        <div style="display:flex; gap:10px;">
+             <button onclick="changePassword()" class="btn-hacker" title="Changer mot de passe"><i class="fa-solid fa-key"></i> PWD</button>
+             <button onclick="changeSuperPassword()" class="btn-hacker" title="Changer mot de passe SuperAdmin"><i class="fa-solid fa-user-shield"></i> ROOT</button>
+             <button onclick="document.getElementById('importInput').click()" class="btn-hacker"><i class="fa-solid fa-upload"></i> IMPORT</button>
+             <button onclick="exportData()" class="btn-hacker"><i class="fa-solid fa-download"></i> BACKUP</button>
+             <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)">
         </div>
-        <button onclick="saveHours()" class="btn-submit" style="background:var(--dark); width:auto;">Enregistrer les horaires</button>
     </div>
-    <div class="card admin-only">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h3 style="margin:0;">Gestion des Rendez-vous</h3>
-            <div style="display:flex; gap:10px;">
-                <button onclick="changePassword()" style="background:var(--dark); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;" title="Changer mot de passe"><i class="fa-solid fa-key"></i></button>
-                <button onclick="document.getElementById('importInput').click()" style="background:var(--text-sub); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-upload"></i> Import</button>
-                <button onclick="exportData()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-download"></i> Backup</button>
-            </div>
-            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)">
+
+    <div class="dashboard-grid admin-only">
+        <!-- Stats Widget -->
+        <div class="dashboard-card" style="grid-column: span 2;">
+            <h3><i class="fa-solid fa-chart-line"></i> Live_Stats</h3>
+            <div id="adminStats" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:10px;"></div>
         </div>
-        <div id="adminStats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;"></div>
-        <input type="text" id="rdvSearch" placeholder="🔍 Rechercher un client..." onkeyup="displayAdminRdv()" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg-body); color:var(--text-main);">
-        <div id="adminRdvList"></div>
+
+        <!-- Configuration Widget -->
+        <div class="dashboard-card">
+            <h3><i class="fa-solid fa-gears"></i> System_Config</h3>
+            <div style="margin-bottom:15px;">
+                <label style="color:#8b949e; font-size:0.8rem; display:block; margin-bottom:5px;">OPENING_HOURS</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="time" id="adminOpenTime" class="hacker-input">
+                    <span style="color:#8b949e;">TO</span>
+                    <input type="time" id="adminCloseTime" class="hacker-input">
+                </div>
+            </div>
+            <div style="margin-bottom:15px; border-top:1px solid var(--hacker-border); padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+                <label style="color:#8b949e; font-size:0.8rem;">VACATION_MODE</label>
+                <button id="btnVacation" onclick="toggleVacationMode()" class="btn-hacker" style="padding:4px 12px; background:#21262d; border-color:#30363d;">OFF</button>
+            </div>
+            <button onclick="saveHours()" class="btn-hacker" style="width:100%;">UPDATE_CONFIG</button>
+        </div>
+
+        <!-- Blacklist Widget -->
+        <div class="dashboard-card">
+            <h3><i class="fa-solid fa-ban"></i> Blacklist</h3>
+            <div style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="tel" id="blacklistInput" placeholder="Numéro à bannir..." class="hacker-input">
+                <button onclick="manualAddToBlacklist()" class="btn-hacker">ADD</button>
+            </div>
+            <div id="blacklistContainer" style="height: 150px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Appointments List Widget -->
+        <div class="dashboard-card" style="grid-column: span 2; min-height: 400px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                <h3><i class="fa-solid fa-list"></i> Appointments_DB</h3>
+                <input type="text" id="rdvSearch" placeholder="> Search_Query..." onkeyup="displayAdminRdv()" class="hacker-input" style="width:200px;">
+            </div>
+            <div id="adminRdvList"></div>
+        </div>
+
+        <!-- Logs Widget -->
+        <div class="dashboard-card" style="grid-column: span 2;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3><i class="fa-solid fa-terminal"></i> System_Logs</h3>
+                <button onclick="clearLogs()" class="btn-hacker btn-hacker-danger" style="padding:4px 10px; font-size:0.7rem;">CLEAR_LOGS</button>
+            </div>
+            <div id="adminLogs" style="height: 150px; overflow-y: auto;"></div>
+        </div>
     </div>
 </div>
 </main>
@@ -186,9 +288,26 @@
     const STORAGE_KEY_RDV = 'reservaPro_rdv';
     const STORAGE_KEY_PWD = 'reservaPro_adminHash';
     const STORAGE_KEY_HOURS = 'reservaPro_hours';
+    const STORAGE_KEY_LOGS = 'reservaPro_logs';
+    const STORAGE_KEY_SUPER_PWD = 'reservaPro_superHash';
+    const STORAGE_KEY_VACATION = 'reservaPro_vacation';
+    const STORAGE_KEY_BLACKLIST = 'reservaPro_blacklist';
 
     let isAdmin = false;
     const DEFAULT_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // admin123
+    const DEFAULT_SUPER_HASH = "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2"; // superadmin123
+
+    // --- SÉCURITÉ ++ (Session Timeout) ---
+    let sessionTimeout;
+    function startSessionTimer() {
+        clearTimeout(sessionTimeout);
+        sessionTimeout = setTimeout(() => {
+            if(isAdmin) { alert("Session expirée par sécurité (15min d'inactivité)."); handleLogin(); }
+        }, 15 * 60 * 1000); // 15 minutes
+    }
+    function stopSessionTimer() { clearTimeout(sessionTimeout); }
+    function resetSessionTimer() { if(isAdmin) startSessionTimer(); }
+    ['click', 'mousemove', 'keydown', 'scroll'].forEach(evt => document.addEventListener(evt, resetSessionTimer, { passive: true }));
 
     // Sécurité : Échapper les caractères HTML pour éviter les failles XSS
     function escapeHtml(text) {
@@ -202,6 +321,10 @@
 
     function getAdminHash() {
         return localStorage.getItem(STORAGE_KEY_PWD) || DEFAULT_HASH;
+    }
+
+    function getSuperAdminHash() {
+        return localStorage.getItem(STORAGE_KEY_SUPER_PWD) || DEFAULT_SUPER_HASH;
     }
 
     async function hashPassword(str) {
@@ -218,15 +341,20 @@
                 document.body.classList.add('is-admin');
                 document.getElementById('btn-admin').innerHTML = "Logout";
                 switchTab('admin-panel');
-            } else { alert("Refusé"); }
+                startSessionTimer(); // Démarrage du chrono de sécurité
+                addLog('Connexion', 'Succès');
+            } else { alert("Refusé"); addLog('Connexion', 'Échec (Mot de passe incorrect)'); }
         } else {
             isAdmin = false;
             document.body.classList.remove('is-admin');
             document.getElementById('btn-admin').innerHTML = "Login";
+            stopSessionTimer(); // Arrêt du chrono
             switchTab('booking');
+            addLog('Déconnexion', 'Manuelle');
         }
         displayPortfolio();
         displayAdminRdv();
+        displayBlacklist();
     }
 
     async function changePassword() {
@@ -238,11 +366,40 @@
             return;
         }
 
-        const newP = prompt("Entrez le nouveau mot de passe :");
+        const newP = prompt("Entrez le nouveau mot de passe (min. 8 caractères) :");
         if (!newP) return;
+
+        if (newP.length < 8) {
+            alert("Sécurité : Le mot de passe doit contenir au moins 8 caractères.");
+            return;
+        }
         
         localStorage.setItem(STORAGE_KEY_PWD, await hashPassword(newP));
+        addLog('Sécurité', 'Mot de passe modifié');
         alert("Mot de passe modifié avec succès !");
+    }
+
+    async function changeSuperPassword() {
+        const currentP = prompt("🔒 SuperAdmin : Entrez le mot de passe actuel :");
+        if (!currentP) return;
+        
+        if (await hashPassword(currentP) !== getSuperAdminHash()) {
+            alert("Mot de passe SuperAdmin incorrect.");
+            addLog('Sécurité', 'Échec changement PWD SuperAdmin');
+            return;
+        }
+
+        const newP = prompt("Nouveau mot de passe SuperAdmin (min. 12 caractères) :");
+        if (!newP) return;
+
+        if (newP.length < 12) {
+            alert("Sécurité : Le mot de passe SuperAdmin doit être très fort (min. 12 caractères).");
+            return;
+        }
+        
+        localStorage.setItem(STORAGE_KEY_SUPER_PWD, await hashPassword(newP));
+        addLog('Sécurité', 'Mot de passe SuperAdmin modifié');
+        alert("Mot de passe SuperAdmin mis à jour !");
     }
 
     function switchTab(t) {
@@ -263,8 +420,28 @@
         const date = document.getElementById('rdvDate').value;
         const comment = document.getElementById('rdvComment').value;
 
+        // Vérification Mode Vacances
+        if (localStorage.getItem(STORAGE_KEY_VACATION) === 'true') {
+            alert("Le salon est actuellement fermé pour congés. Impossible de réserver.");
+            return;
+        }
+
+        // Vérification Blacklist
+        const blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
+        if (blacklist.includes(phone)) {
+            alert("⛔ Réservation impossible. Ce numéro est bloqué. Veuillez contacter l'établissement.");
+            return;
+        }
+
         if (new Date(date) < new Date()) {
             alert("Impossible de réserver une date dans le passé.");
+            return;
+        }
+
+        // Sécurité : Anti-Spam (1 minute entre chaque réservation)
+        const lastBook = localStorage.getItem('reservaPro_lastBook');
+        if (lastBook && (Date.now() - lastBook) < 60000) {
+            alert("Veuillez patienter quelques instants avant de reprendre rendez-vous.");
             return;
         }
 
@@ -283,17 +460,143 @@
             if (index !== -1) {
                 rdvs[index] = { id, name, phone, service, date, comment };
                 alert("Rendez-vous modifié avec succès !");
+                addLog('Modification RDV', `${name} (${date})`);
             }
         } else {
             const newRdv = { id: Date.now(), name, phone, service, date, comment };
             rdvs.push(newRdv);
+            playNotificationSound();
             alert(`Rendez-vous confirmé pour ${name} !\n(Note: Ceci est une démo locale)`);
+            addLog('Nouveau RDV', `${name} (${date})`);
         }
 
         localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
+        localStorage.setItem('reservaPro_lastBook', Date.now()); // Enregistrement du timestamp pour l'anti-spam
         cancelEdit(); // Réinitialise le formulaire et le mode édition
         displayAdminRdv(); // Mise à jour immédiate si admin connecté
         checkTodayRdv();
+
+        // Animation du badge si c'est un nouveau RDV pour aujourd'hui
+        const now = new Date();
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        if (!isEdit && date.split('T')[0] === todayStr) {
+            const badge = document.getElementById('adminBadge');
+            badge.classList.remove('bounce');
+            void badge.offsetWidth; // Force le redessin pour relancer l'animation
+            badge.classList.add('bounce');
+        }
+    }
+
+    function playNotificationSound() {
+        // Création d'un synthétiseur audio (Web Audio API)
+        if (!window.AudioContext && !window.webkitAudioContext) return;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        // Effet "Futuriste" : Montée rapide de fréquence (Sweep)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); // Volume bas pour ne pas agresser
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+        osc.onended = () => ctx.close(); // Nettoyage mémoire
+    }
+
+    function addLog(action, details = '') {
+        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [];
+        logs.unshift({ date: new Date().toISOString(), action, details });
+        if (logs.length > 50) logs.pop(); // Garder les 50 derniers
+        localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
+        displayLogs();
+    }
+
+    function displayLogs() {
+        if (!isAdmin) return;
+        const container = document.getElementById('adminLogs');
+        const logs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [];
+        
+        if (logs.length === 0) {
+            container.innerHTML = '<div class="log-item" style="text-align:center; border:none;">Aucune activité récente.</div>';
+            return;
+        }
+
+        container.innerHTML = logs.map(log => {
+            const d = new Date(log.date).toLocaleString('fr-FR');
+            return `<div class="log-item"><span class="log-date">${d}</span> <strong>${escapeHtml(log.action)}</strong> ${escapeHtml(log.details)}</div>`;
+        }).join('');
+    }
+
+    function displayBlacklist() {
+        if (!isAdmin) return;
+        const container = document.getElementById('blacklistContainer');
+        const blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
+        
+        if (blacklist.length === 0) {
+            container.innerHTML = '<div style="color:#8b949e; font-size:0.8rem; text-align:center;">Aucun numéro banni.</div>';
+            return;
+        }
+
+        container.innerHTML = blacklist.map(phone => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:5px; border-bottom:1px solid var(--hacker-border); font-size:0.85rem;">
+                <span>${escapeHtml(phone)}</span>
+                <button onclick="removeFromBlacklist('${escapeHtml(phone)}')" class="btn-del" style="position:static; width:20px; height:20px; font-size:10px;">×</button>
+            </div>
+        `).join('');
+    }
+
+    function manualAddToBlacklist() {
+        const input = document.getElementById('blacklistInput');
+        if(input.value) {
+            addToBlacklist(input.value);
+            input.value = '';
+        }
+    }
+
+    function addToBlacklist(phone) {
+        if(!phone) return;
+        if(!confirm(`Bannir le numéro ${phone} ?`)) return;
+        
+        let blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
+        if(!blacklist.includes(phone)) {
+            blacklist.push(phone);
+            localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(blacklist));
+            addLog('Sécurité', `Numéro banni : ${phone}`);
+            alert(`Le numéro ${phone} a été ajouté à la liste noire.`);
+            displayBlacklist();
+        } else { alert("Ce numéro est déjà banni."); }
+    }
+
+    function removeFromBlacklist(phone) {
+        if(!confirm(`Débloquer le numéro ${phone} ?`)) return;
+        let blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
+        blacklist = blacklist.filter(p => p !== phone);
+        localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(blacklist));
+        addLog('Sécurité', `Numéro débloqué : ${phone}`);
+        displayBlacklist();
+    }
+
+    async function clearLogs() {
+        if(!confirm("⚠️ Action Critique : Effacer tout l'historique d'activité ?")) return;
+        
+        const p = prompt("🔒 Sécurité SuperAdmin : Entrez le mot de passe :");
+        if (p && await hashPassword(p) === getSuperAdminHash()) {
+            localStorage.removeItem(STORAGE_KEY_LOGS);
+            displayLogs();
+            addLog('Système', 'Logs purgés par SuperAdmin');
+            alert("Historique nettoyé avec succès.");
+        } else {
+            alert("Mot de passe SuperAdmin incorrect.");
+            addLog('Sécurité', 'Échec purge logs (Pwd incorrect)');
+        }
     }
 
     function displayAdminRdv() {
@@ -310,9 +613,21 @@
             return acc;
         }, {});
 
-        statsContainer.innerHTML = Object.entries(stats).map(([k, v]) => 
-            `<div style="background:var(--bg-body); padding:5px 10px; border-radius:6px; font-size:0.85rem; border:1px solid var(--border);">${k} : <strong>${v}</strong></div>`
-        ).join('') || '<span style="font-size:0.85rem; color:var(--text-sub);">Aucune stat pour le moment.</span>';
+        displayLogs(); // Mise à jour des logs en même temps
+        displayBlacklist();
+        
+        const maxVal = Math.max(...Object.values(stats), 1);
+
+        statsContainer.innerHTML = Object.entries(stats).map(([k, v]) => {
+            const percent = (v / maxVal) * 100;
+            return `<div class="stat-box" style="align-items: stretch; text-align: left;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                    <span class="stat-label" style="margin:0;">${k}</span>
+                    <span class="stat-number" style="font-size:1.2rem;">${v}</span>
+                </div>
+                <div class="stat-bar-container"><div class="stat-bar" style="width:${percent}%"></div></div>
+            </div>`;
+        }).join('') || '<div class="stat-box" style="grid-column:1/-1"><span class="stat-label">NO_DATA</span></div>';
 
         if (searchTerm) {
             rdvs = rdvs.filter(r => r.name.toLowerCase().includes(searchTerm));
@@ -341,15 +656,17 @@
         // Fonction d'affichage unitaire
         const renderRdv = (rdv) => {
             const dateFmt = new Date(rdv.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const smsBody = encodeURIComponent(`Bonjour ${rdv.name}, petit rappel pour votre rendez-vous le ${dateFmt}. À bientôt !`);
             return `
             <div class="rdv-item">
                 <div class="rdv-info">
                     <h4>${escapeHtml(rdv.name)} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
                     <p><i class="fa-regular fa-clock"></i> ${dateFmt}</p>
-                    <p><i class="fa-solid fa-phone"></i> ${escapeHtml(rdv.phone)}</p>
+                    <p><i class="fa-solid fa-phone"></i> ${escapeHtml(rdv.phone)} <button onclick="addToBlacklist('${escapeHtml(rdv.phone)}')" class="btn-del" style="position:static; width:20px; height:20px; font-size:10px; background:var(--dark);" title="Bannir">🚫</button></p>
                     ${rdv.comment ? `<p style="font-style:italic; margin-top:5px; font-size:0.85rem; color:var(--text-main);">"${escapeHtml(rdv.comment)}"</p>` : ''}
                 </div>
                 <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="sms:${escapeHtml(rdv.phone)}?body=${smsBody}" style="background:#4cc9f0; color:white; width:25px; height:25px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;" title="SMS Rappel" aria-label="Envoyer SMS"><i class="fa-solid fa-comment-sms" style="font-size:12px;"></i></a>
                     <a href="tel:${escapeHtml(rdv.phone)}" style="background:var(--success); color:white; width:25px; height:25px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;" title="Appeler" aria-label="Appeler"><i class="fa-solid fa-phone" style="font-size:12px;"></i></a>
                     <button class="btn-del" style="position:static; background:var(--primary);" onclick="editRdv(${rdv.id})" title="Modifier" aria-label="Modifier"><i class="fa-solid fa-pen"></i></button>
                     <button class="btn-del" style="position:static;" onclick="deleteRdv(${rdv.id})" title="Supprimer" aria-label="Supprimer">×</button>
@@ -404,6 +721,7 @@
         let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
         rdvs = rdvs.filter(r => r.id !== id);
         localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
+        addLog('Suppression RDV', `ID: ${id}`);
         displayAdminRdv();
         checkTodayRdv();
     }
@@ -413,14 +731,58 @@
         const now = new Date();
         const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
         
-        const count = rdvs.filter(r => r.date.split('T')[0] === todayStr).length;
+        const todayRdvs = rdvs.filter(r => r.date.split('T')[0] === todayStr);
+        const count = todayRdvs.length;
         const badge = document.getElementById('adminBadge');
         
         if (count > 0) {
             badge.style.display = 'inline-block';
             badge.innerText = count;
+            
+            // Si tous les RDV du jour sont passés -> Vert, sinon -> Rouge
+            const allPassed = todayRdvs.every(r => new Date(r.date) < now);
+            badge.style.background = allPassed ? 'var(--success)' : 'var(--danger)';
         } else {
             badge.style.display = 'none';
+        }
+    }
+
+    function toggleVacationMode() {
+        const current = localStorage.getItem(STORAGE_KEY_VACATION) === 'true';
+        if(!confirm(`Voulez-vous ${current ? 'désactiver' : 'activer'} le mode vacances ?`)) return;
+        
+        localStorage.setItem(STORAGE_KEY_VACATION, !current);
+        updateVacationUI();
+        addLog('Configuration', `Vacances: ${!current ? 'ON' : 'OFF'}`);
+    }
+
+    function updateVacationUI() {
+        const isVacation = localStorage.getItem(STORAGE_KEY_VACATION) === 'true';
+        
+        // Admin UI
+        const btn = document.getElementById('btnVacation');
+        if(btn) {
+            btn.innerText = isVacation ? 'ACTIVE' : 'INACTIVE';
+            btn.className = isVacation ? 'btn-hacker btn-hacker-danger' : 'btn-hacker';
+            if(!isVacation) btn.style.background = '#21262d';
+        }
+
+        // Client UI
+        const form = document.getElementById('bookingForm');
+        const container = document.querySelector('#booking-section .card');
+        let msg = document.getElementById('vacationMessage');
+
+        if(isVacation) {
+            if(form) form.style.display = 'none';
+            if(!msg) {
+                msg = document.createElement('div');
+                msg.id = 'vacationMessage';
+                msg.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-sub);"><i class="fa-solid fa-umbrella-beach" style="font-size:3rem; color:var(--primary); margin-bottom:15px;"></i><h3>Salon en vacances</h3><p>Les réservations sont momentanément suspendues.<br>À très vite !</p></div>`;
+                container.appendChild(msg);
+            } else { msg.style.display = 'block'; }
+        } else {
+            if(form) form.style.display = 'block';
+            if(msg) msg.style.display = 'none';
         }
     }
 
@@ -430,6 +792,7 @@
         if(!open || !close) return alert("Veuillez remplir les deux horaires.");
         
         localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify({ open, close }));
+        addLog('Configuration', `Horaires : ${open} - ${close}`);
         alert("Horaires mis à jour !");
         loadHours();
     }
@@ -456,7 +819,10 @@
         const data = {
             rdvs: JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [],
             portfolio: JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [],
-            hours: JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" }
+            hours: JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" },
+            logs: JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [],
+            vacation: localStorage.getItem(STORAGE_KEY_VACATION),
+            blacklist: JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || []
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -467,6 +833,7 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        addLog('Système', 'Backup téléchargé');
     }
 
     function importData(input) {
@@ -487,11 +854,17 @@
                 localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(data.rdvs));
                 localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(data.portfolio));
                 if(data.hours) localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify(data.hours));
+                if(data.logs) localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(data.logs));
+                if(data.vacation) localStorage.setItem(STORAGE_KEY_VACATION, data.vacation);
+                if(data.blacklist) localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(data.blacklist));
                 
                 alert("Données restaurées avec succès !");
+                addLog('Système', 'Restauration effectuée');
                 displayAdminRdv();
                 displayPortfolio();
                 checkTodayRdv();
+                updateVacationUI();
+                displayBlacklist();
             } catch (err) { alert("Erreur d'importation : " + err.message); }
             input.value = '';
         };
@@ -514,6 +887,7 @@
             imgs.push(base64Img);
             localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(imgs));
             
+            addLog('Portfolio', 'Nouvelle photo ajoutée');
             displayPortfolio();
         } catch (err) { alert("Erreur lors de l'ajout de l'image."); console.error(err); }
         finally { btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; }
@@ -569,6 +943,7 @@
         let imgs = JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [];
         imgs.splice(i, 1);
         localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(imgs));
+        addLog('Portfolio', 'Photo supprimée');
         displayPortfolio();
     }
 
@@ -588,6 +963,7 @@
         document.getElementById('rdvDate').min = now.toISOString().slice(0, 16);
         checkTodayRdv();
         loadHours();
+        updateVacationUI();
     };
 
     // Service Worker Registration (à la fin pour la perf)

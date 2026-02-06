@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reservapro-v6';
+const CACHE_NAME = 'reservapro-v19';
 const ASSETS = [
   './',
   'index.html',

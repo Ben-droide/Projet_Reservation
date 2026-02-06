@@ -1,4 +1,4 @@
-# ✂️ ReservaPro v10.2 — Solution 100% Locale & Autonome
+# ✂️ ReservaPro v11.4 — Dashboard Edition
 
 **ReservaPro** est une application web métier (PWA) conçue pour offrir aux coiffeurs et barbiers une solution de gestion robuste, 100% gratuite et totalement indépendante des abonnements tiers.
 
@@ -28,9 +28,19 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 ### 🔐 Sécurité
 * **Authentification Admin** : Accès au back-office protégé par hachage cryptographique **SHA-256** (Web Crypto API).
 * **Gestion des Accès** : Possibilité de modifier le mot de passe administrateur directement depuis l'interface.
+* **Auto-Logout** : Déconnexion automatique après 15 minutes d'inactivité pour protéger l'accès.
+* **SuperAdmin** : Protection renforcée pour la suppression des logs (Mot de passe dédié).
+* **Protection XSS** : Politique de sécurité de contenu (CSP) stricte pour bloquer les scripts malveillants.
+* **Anti-Spam** : Limitation de la fréquence des réservations pour éviter les abus.
 * **Backup & Restauration** : Export et Import complet des données (JSON) pour sécuriser ou transférer son activité.
+* **Journal d'Activité** : Historique des actions (connexions, modifications, suppressions) visible uniquement par l'admin.
 * **Navigation Fluide** : Redirection automatique entre le panneau d'administration et le formulaire lors de l'édition d'un rendez-vous.
 * **Contrôle Horaire** : Définition des heures d'ouverture et blocage automatique des réservations hors créneaux.
+* **Mode Vacances** : Interrupteur global pour suspendre temporairement la prise de rendez-vous (message personnalisé pour les clients).
+* **Badge Intelligent** : L'indicateur de rendez-vous passe au vert lorsque tous les clients de la journée ont été honorés.
+* **Animation Live** : Effet de rebond sur le badge de notification lors de l'arrivée d'un rendez-vous urgent (jour même).
+* **Rappel SMS** : Bouton d'action rapide pour ouvrir l'application SMS avec un message de rappel pré-rempli (Nom + Date).
+* **Blacklist** : Possibilité de bannir des numéros de téléphone pour empêcher les réservations indésirables.
 
 ---
 
@@ -51,6 +61,7 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
     * Cliquez sur **Login**.
     * Mot de passe par défaut : `admin123`.
     * *Note : Vous pouvez changer ce mot de passe dans l'onglet Admin (icône clé).*
+    * **SuperAdmin** (Purge des logs) : `superadmin123` (Modifiable via le bouton ROOT).
 
 ---
 
