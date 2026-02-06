@@ -64,10 +64,10 @@ body.theme-gothic nav { background: rgba(20, 0, 0, 0.9); border-bottom: 1px soli
 #btn-admin-panel { position: relative; }
 .badge-count { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--dark); display: none; min-width: 20px; text-align: center; }
 
-header { background-color: var(--dark); color: white; padding: 20px 0; text-align: center; position: relative; }
+header { background-color: var(--dark); color: white; padding: 20px 0; text-align: center; position: relative; z-index: 10; }
 #themeToggle { position: absolute; right: 20px; top: 25px; background: transparent; border: 1.5px solid white; color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
 
-.container { width: 95%; max-width: 1000px; margin: 20px auto; display: none; gap: 20px; }
+.container { width: 95%; max-width: 1000px; margin: 20px auto; display: none; gap: 20px; position: relative; z-index: 10; }
 .container.active { display: block; animation: fadeIn 0.6s ease-out; }
 
 .card { background: var(--bg-card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; margin-bottom: 20px; }

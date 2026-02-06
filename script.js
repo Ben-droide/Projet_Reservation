@@ -10,6 +10,7 @@ const DEFAULT_PRICES = {
     "Coupe Enfant": 15
 };
 let prices = JSON.parse(localStorage.getItem(STORAGE_KEY_PRICES)) || DEFAULT_PRICES;
+let cachedHours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
 
 // Optimisation : Debounce pour la recherche (évite de recalculer à chaque lettre tapée)
 function debounce(func, wait) {
@@ -23,8 +24,12 @@ function debounce(func, wait) {
 function switchTab(t) {
     document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(t + '-section').classList.add('active');
-    document.getElementById('btn-' + t).classList.add('active');
+    
+    const section = document.getElementById(t + '-section');
+    if (section) section.classList.add('active');
+    
+    const btn = document.getElementById('btn-' + t);
+    if (btn) btn.classList.add('active');
 }
 
 // --- GESTION DES RDV (LOCAL) ---
@@ -350,7 +355,7 @@ function populateProSelect() {
     });
 }
 
-function displayAdminRdv() {
+function displayAdminRdv(refreshWidgets = true) {
     if (userRole === 'client') return;
     const list = document.getElementById('adminRdvList');
     const statsContainer = document.getElementById('adminStats');
@@ -379,11 +384,13 @@ function displayAdminRdv() {
         return acc;
     }, {});
 
-    displayLogs(); // Mise à jour des logs en même temps
-    displayBlacklist();
-    renderRevenueChart(); // Mise à jour du graphique
-    renderTeamManagement(); // Mise à jour de l'équipe
-    updateDashboardUI(); // Mise à jour de l'interface selon le rôle
+    if (refreshWidgets) {
+        displayLogs(); // Mise à jour des logs
+        displayBlacklist();
+        renderRevenueChart(); // Mise à jour du graphique
+        renderTeamManagement(); // Mise à jour de l'équipe
+        updateDashboardUI(); // Mise à jour de l'interface selon le rôle
+    }
     
     const maxVal = Math.max(...Object.values(stats), 1);
     
@@ -832,6 +839,7 @@ async function saveHours() {
     if(!open || !close) return await customAlert("Veuillez remplir les deux horaires.");
     
     localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify({ open, close }));
+    cachedHours = { open, close }; // Mise à jour du cache
     addLog('Configuration', `Horaires : ${open} - ${close}`);
     await customAlert("Horaires mis à jour !");
     loadHours();
@@ -840,6 +848,7 @@ async function saveHours() {
 function loadHours() {
     const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
     
+    cachedHours = hours; // Mise à jour du cache
     // Admin inputs
     const adminOpen = document.getElementById('adminOpenTime');
     const adminClose = document.getElementById('adminCloseTime');
@@ -1016,7 +1025,7 @@ function startClock() {
         // Calcul temps restant (Pro Dashboard)
         const workLabel = document.getElementById('workTimeLeft');
         if (workLabel) {
-            const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
+            const hours = cachedHours; // Utilisation du cache pour la performance
             const [closeH, closeM] = hours.close.split(':').map(Number);
             const [openH, openM] = hours.open.split(':').map(Number);
             
@@ -1076,7 +1085,7 @@ window.onload = () => {
     updateVacationUI();
 
     // Attachement optimisé de l'événement de recherche
-    document.getElementById('rdvSearch').addEventListener('input', debounce(() => displayAdminRdv(), 300));
+    document.getElementById('rdvSearch').addEventListener('input', debounce(() => displayAdminRdv(false), 300));
     document.getElementById('vipFilter').addEventListener('change', displayAdminRdv);
 
     // Back to Top Logic

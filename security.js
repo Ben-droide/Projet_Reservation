@@ -339,8 +339,7 @@ async function handleLogin() {
     }
     // Mise à jour de l'UI (fonctions définies dans script.js)
     if(typeof displayPortfolio === 'function') displayPortfolio();
-    if(typeof displayAdminRdv === 'function') displayAdminRdv();
-    if(typeof displayBlacklist === 'function') displayBlacklist();
+    if(typeof displayAdminRdv === 'function') displayAdminRdv(true); // Rafraîchissement complet (inclut blacklist, logs, etc.)
     if(typeof renderPricingWidget === 'function') renderPricingWidget();
 }
 
