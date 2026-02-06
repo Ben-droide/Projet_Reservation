@@ -159,20 +159,84 @@ function customConfirm(message) {
 function playAccessGrantedSound() {
     if (!window.AudioContext && !window.webkitAudioContext) return;
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    const now = ctx.currentTime;
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.1);
+    // Détection du thème actif
+    let theme = '';
+    if (userRole === 'pro' && currentProId) {
+        theme = localStorage.getItem('reservaPro_theme_' + currentProId) || '';
+    } else if (userRole === 'admin') {
+        theme = 'theme-cyberpunk'; // Admin = Hacker Theme (similaire Cyberpunk)
+    }
 
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.1);
+    if (theme === 'theme-cyberpunk') {
+        // Cyberpunk / Hacker : Son synthétique "Power Up" (Sawtooth)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+        
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(now + 0.3);
+    } 
+    else if (theme === 'theme-girly') {
+        // Girly : Arpège scintillant/Magique (Do-Mi-Sol-Do aigu)
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            
+            gain.gain.setValueAtTime(0.05, now + i * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.4);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.08);
+            osc.stop(now + i * 0.08 + 0.4);
+        });
+    } 
+    else if (theme === 'theme-gothic') {
+        // Gothique : Accord mineur sombre et profond (Orgue)
+        [110, 130.81, 164.81].forEach((freq) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = freq;
+            
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(now + 1.0);
+        });
+    } 
+    else {
+        // Nature (Défaut) : Accord majeur doux et zen
+        [261.63, 329.63, 392.00].forEach((freq) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            
+            gain.gain.setValueAtTime(0, now);
+            gain.gain.linearRampToValueAtTime(0.1, now + 0.1); // Fade in doux
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(now + 0.8);
+        });
+    }
 }
 
 function playAccessDeniedSound() {
@@ -266,6 +330,7 @@ async function handleLogin() {
         userRole = 'client';
         currentProId = null;
         document.body.classList.remove('is-admin', 'role-admin', 'role-pro');
+        document.body.classList.remove('theme-girly', 'theme-cyberpunk', 'theme-gothic'); // Reset thème
         document.getElementById('btn-admin').innerHTML = "Login";
         stopSessionTimer();
         switchTab('booking');

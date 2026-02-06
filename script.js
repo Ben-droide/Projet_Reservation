@@ -34,6 +34,7 @@ async function handleBooking(e) {
     const isEdit = idInput.value !== '';
     const name = document.getElementById('rdvName').value;
     const phone = document.getElementById('rdvPhone').value;
+    const proId = document.getElementById('rdvPro').value;
     const service = document.getElementById('rdvService').value;
     const date = document.getElementById('rdvDate').value;
     const comment = document.getElementById('rdvComment').value;
@@ -70,12 +71,12 @@ async function handleBooking(e) {
         const id = parseInt(idInput.value);
         const index = rdvs.findIndex(r => r.id === id);
         if (index !== -1) {
-            rdvs[index] = { id, name, phone, service, date, comment, tags };
+            rdvs[index] = { id, name, phone, proId, service, date, comment, tags };
             await customAlert("Rendez-vous modifié avec succès !");
             addLog('Modification RDV', `${name} (${date})`);
         }
     } else {
-        const newRdv = { id: Date.now(), name, phone, service, date, comment, tags };
+        const newRdv = { id: Date.now(), name, phone, proId, service, date, comment, tags };
         rdvs.push(newRdv);
         playNotificationSound();
         await customAlert(`Rendez-vous confirmé pour ${name} !\n(Note: Ceci est une démo locale)`);
@@ -204,8 +205,8 @@ function renderPricingWidget() {
         return;
     }
     container.innerHTML = Object.entries(prices).map(([service, price]) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <label style="font-size:0.8rem; color:#8b949e;">${service}</label>
+        <div class="pricing-item">
+            <label style="font-size:0.9rem; color:#c9d1d9;">${service}</label>
             <input type="number" data-service="${service}" value="${price}" class="hacker-input price-input" style="width:70px; text-align:right;">
         </div>
     `).join('');
@@ -302,7 +303,7 @@ function renderTeamManagement() {
     const prosList = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
     const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
 
-    let html = `<h3><i class="fa-solid fa-users-gear"></i> Équipe</h3><div style="margin-bottom:15px; max-height:150px; overflow-y:auto;">`;
+    let html = `<h3><i class="fa-solid fa-users-gear"></i> Équipe</h3><div style="margin-bottom:20px; max-height:200px; overflow-y:auto; padding-right:5px;">`;
 
     if (prosList.length === 0) {
         html += `<div style="color:#8b949e; font-style:italic; font-size:0.8rem;">Aucun compte pro configuré.</div>`;
@@ -318,7 +319,7 @@ function renderTeamManagement() {
                 : `<div style="position:relative; width:32px; height:32px; opacity:0.8;">${photoHtml}</div>`;
 
             return `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--hacker-border);">
+            <div class="team-item">
                 <div style="display:flex; align-items:center; gap:10px;">
                     ${avatarBlock}
                     <span style="color:var(--hacker-text); font-weight:bold;">${p.name} ${isMe ? '<span style="font-size:0.7rem; color:var(--hacker-accent);">(Moi)</span>' : ''}</span>
@@ -331,6 +332,24 @@ function renderTeamManagement() {
     card.innerHTML = html;
 }
 
+function populateProSelect() {
+    const select = document.getElementById('rdvPro');
+    if (!select) return;
+    const pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+    
+    // Garder l'option par défaut
+    const defaultOption = select.firstElementChild;
+    select.innerHTML = '';
+    select.appendChild(defaultOption);
+
+    pros.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.name;
+        select.appendChild(opt);
+    });
+}
+
 function displayAdminRdv() {
     if (userRole === 'client') return;
     const list = document.getElementById('adminRdvList');
@@ -338,6 +357,13 @@ function displayAdminRdv() {
     const searchTerm = document.getElementById('rdvSearch').value.toLowerCase();
     const vipOnly = document.getElementById('vipFilter').checked;
     let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+    const prosList = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+
+    // FILTRE PRO : Si je suis un Pro, je ne vois que MES rendez-vous
+    if (userRole === 'pro') {
+        const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+        if (currentId) rdvs = rdvs.filter(r => r.proId == currentId);
+    }
     
     // Calcul CA du jour
     const now = new Date();
@@ -357,6 +383,7 @@ function displayAdminRdv() {
     displayBlacklist();
     renderRevenueChart(); // Mise à jour du graphique
     renderTeamManagement(); // Mise à jour de l'équipe
+    updateDashboardUI(); // Mise à jour de l'interface selon le rôle
     
     const maxVal = Math.max(...Object.values(stats), 1);
     
@@ -411,10 +438,15 @@ function displayAdminRdv() {
         const smsBody = encodeURIComponent(`Bonjour ${rdv.name}, petit rappel pour votre rendez-vous le ${dateFmt}. À bientôt !`);
         const tagsHtml = (rdv.tags || []).map(t => `<span class="tag tag-${t}">${t}</span>`).join('');
         const vipIcon = (rdv.tags || []).includes('VIP') ? '👑 ' : '';
+        
+        // Affichage du nom du Pro (utile pour l'Admin)
+        const assignedPro = prosList.find(p => p.id == rdv.proId);
+        const proLabel = userRole === 'admin' ? `<span style="font-size:0.75rem; background:#21262d; padding:2px 6px; border-radius:4px; margin-left:5px; color:#8b949e;"><i class="fa-solid fa-user-tie"></i> ${assignedPro ? assignedPro.name : 'Non assigné'}</span>` : '';
+
         return `
         <div class="rdv-item">
             <div class="rdv-info">
-                <h4>${vipIcon}${escapeHtml(rdv.name)} ${tagsHtml} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
+                <h4>${vipIcon}${escapeHtml(rdv.name)} ${tagsHtml} ${proLabel} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
                 <p><i class="fa-regular fa-clock"></i> ${dateFmt}</p>
                 <p><i class="fa-solid fa-phone"></i> ${escapeHtml(rdv.phone)} <button onclick="addToBlacklist('${escapeHtml(rdv.phone)}')" class="btn-del" style="position:static; width:20px; height:20px; font-size:10px; background:var(--dark);" title="Bannir">🚫</button></p>
                 ${rdv.comment ? `<p style="font-style:italic; margin-top:5px; font-size:0.85rem; color:var(--text-main);">"${escapeHtml(rdv.comment)}"</p>` : ''}
@@ -437,6 +469,190 @@ function displayAdminRdv() {
     list.innerHTML = html;
 }
 
+function updateDashboardUI() {
+    // Liste des widgets réservés au Gérant (Admin)
+    const adminCards = ['cardStats', 'cardRevenue', 'cardConfig', 'cardBlacklist', 'cardPricing', 'cardLogs'];
+    const superBtns = document.querySelectorAll('.super-admin-btn');
+    const proBtns = document.querySelectorAll('.pro-only-btn');
+    const title = document.getElementById('dashboardTitle');
+
+    if (userRole === 'pro') {
+        // Mode Pro : On cache les widgets complexes et les boutons système
+        adminCards.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'none';
+        });
+        superBtns.forEach(btn => btn.style.display = 'none');
+        proBtns.forEach(btn => btn.style.display = 'inline-block');
+
+        // Message de bienvenue personnalisé
+        const pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+        const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+        const pro = pros.find(p => p.id === currentId);
+        if (pro && title) {
+            // Chargement du thème sauvegardé
+            const savedTheme = localStorage.getItem('reservaPro_theme_' + pro.id) || '';
+            if(savedTheme) document.body.classList.add(savedTheme);
+
+            const isLunch = localStorage.getItem('reservaPro_lunch_' + pro.id) === 'true';
+            const quotes = [
+                "Passe une excellente journée !",
+                "Ton talent fait la différence.",
+                "Prêt(e) à sublimer tes clients ?",
+                "Chaque coupe est une œuvre d'art.",
+                "Le succès est au bout des ciseaux.",
+                "Sourire, c'est déjà accueillir.",
+                "Fais ce que tu aimes, aime ce que tu fais."
+            ];
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            const imgHtml = pro.photo ? `<img src="${pro.photo}" style="width:45px; height:45px; border-radius:50%; margin-right:12px; object-fit:cover; border:2px solid var(--primary);">` : '';
+            title.innerHTML = `<div style="display:flex; align-items:center;">
+                <div style="display:flex; align-items:center;">${imgHtml}<div><div>Bonjour ${pro.name} <i class="fa-solid fa-hand-sparkles"></i></div><div style="font-size:0.85rem; color:var(--text-sub); font-style:italic; font-weight:normal; margin-top:2px;">"${randomQuote}"</div></div></div>
+                <div style="display:flex; flex-direction:column; align-items:flex-end; margin-left:20px; padding-left:20px; border-left:2px solid var(--border);">
+                    <div id="liveClock" style="font-size:1.4rem; color:var(--primary); font-weight:600; line-height:1;">--:--</div>
+                    <div id="workTimeLeft" style="font-size:0.75rem; color:var(--text-sub); margin-top:4px; font-weight:bold;">--h restantes</div>
+                    <div style="width: 80px; height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden;">
+                        <div id="workProgressBar" style="height: 100%; background: var(--primary); width: 0%; transition: width 1s linear;"></div>
+                    </div>
+                    <button onclick="toggleLunch()" style="background:none; border:none; font-size:0.65rem; color:${isLunch ? 'var(--primary)' : 'var(--text-sub)'}; cursor:pointer; margin-top:5px; font-weight:${isLunch ? 'bold' : 'normal'}; opacity:${isLunch ? '1' : '0.7'};" title="Déduire 1h de pause">
+                        <i class="fa-solid fa-utensils"></i> Pause -1h ${isLunch ? '✓' : ''}
+                    </button>
+                </div>
+                <div style="margin-left:20px;">
+                    <select onchange="changeProTheme(this.value)" style="padding:5px; border-radius:4px; border:1px solid var(--border); background:var(--bg-card); color:var(--text-main); font-family:inherit; font-size:0.8rem; cursor:pointer;">
+                        <option value="" ${savedTheme===''?'selected':''}>🌿 Nature</option>
+                        <option value="theme-girly" ${savedTheme==='theme-girly'?'selected':''}>🌸 Girly</option>
+                        <option value="theme-cyberpunk" ${savedTheme==='theme-cyberpunk'?'selected':''}>🤖 Cyberpunk</option>
+                        <option value="theme-gothic" ${savedTheme==='theme-gothic'?'selected':''}>🦇 Gothique</option>
+                    </select>
+                </div>
+            </div>`;
+            title.style.fontFamily = "'Playfair Display', serif";
+        }
+    } else {
+        // Mode Admin : On affiche tout
+        adminCards.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.style.display = 'block';
+        });
+        superBtns.forEach(btn => btn.style.display = 'inline-block');
+        proBtns.forEach(btn => btn.style.display = 'none'); // Admin n'a pas de profil "Pro"
+
+        // Restauration titre Admin
+        if (title) {
+            title.innerHTML = '> ADMIN_CONSOLE';
+            title.style.fontFamily = "'Courier New', monospace";
+        }
+    }
+}
+
+function changeProTheme(themeClass) {
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if(!currentId) return;
+    
+    document.body.classList.remove('theme-girly', 'theme-cyberpunk', 'theme-gothic');
+    if(themeClass) document.body.classList.add(themeClass);
+    
+    localStorage.setItem('reservaPro_theme_' + currentId, themeClass);
+}
+
+function openProProfile() {
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if (!currentId) return;
+
+    const pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+    const pro = pros.find(p => p.id === currentId);
+    if (!pro) return;
+
+    // Remplissage des données
+    document.getElementById('instaName').innerText = pro.name;
+    document.getElementById('instaRealName').innerText = pro.name; // Ou un champ "Nom complet" si ajouté
+    document.getElementById('instaAvatar').src = pro.photo || 'https://via.placeholder.com/150?text=PRO';
+    
+    const desc = pro.description || "Bienvenue sur mon profil !";
+    document.getElementById('instaDesc').innerText = desc;
+    
+    const email = pro.email || "";
+    const emailLink = document.getElementById('instaEmailLink');
+    if (email) {
+        emailLink.innerText = email;
+        emailLink.href = "mailto:" + email;
+        emailLink.style.display = "block";
+    } else {
+        emailLink.style.display = "none";
+    }
+
+    // Stats fictives pour l'exemple (pourraient être réelles)
+    const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+    const myRdvs = rdvs.filter(r => r.proId == currentId).length;
+    document.querySelector('.insta-stats span:nth-child(1) strong').innerText = myRdvs; // "Publications" -> RDV
+    document.querySelector('.insta-stats span:nth-child(2) strong').innerText = Math.floor(myRdvs * 1.5); // "Abonnés" -> Clients
+
+    // Remplissage Portfolio (Images globales pour l'instant)
+    const imgs = JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [];
+    const grid = document.getElementById('instaGrid');
+    grid.innerHTML = imgs.map(url => `<div class="portfolio-item"><img src="${url}" loading="lazy"></div>`).join('');
+
+    switchTab('pro-profile');
+}
+
+function toggleEditProfile() {
+    const displayDiv = document.getElementById('instaBioDisplay');
+    const editDiv = document.getElementById('instaBioEdit');
+    
+    if (editDiv.style.display === 'none') {
+        // Mode Édition
+        const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+        const pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+        const pro = pros.find(p => p.id === currentId);
+
+        document.getElementById('editInstaName').value = pro.name;
+        document.getElementById('editInstaEmail').value = pro.email || "";
+        document.getElementById('editInstaDesc').value = pro.description || "";
+
+        displayDiv.style.display = 'none';
+        editDiv.style.display = 'block';
+    } else {
+        // Annuler
+        displayDiv.style.display = 'block';
+        editDiv.style.display = 'none';
+    }
+}
+
+async function saveProProfile() {
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if (!currentId) return;
+
+    let pros = JSON.parse(localStorage.getItem('reservaPro_team')) || [];
+    const index = pros.findIndex(p => p.id === currentId);
+    if (index === -1) return;
+
+    pros[index].name = document.getElementById('editInstaName').value;
+    pros[index].email = document.getElementById('editInstaEmail').value;
+    pros[index].description = document.getElementById('editInstaDesc').value;
+
+    localStorage.setItem('reservaPro_team', JSON.stringify(pros));
+    await customAlert("Profil mis à jour !");
+    toggleEditProfile(); // Revenir en mode affichage
+    openProProfile(); // Rafraîchir l'affichage
+}
+
+async function handleInstaPhotoUpload(input) {
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if (!currentId) return;
+    await handleProPhotoUpload(currentId, input); // Réutilise la fonction existante
+    openProProfile(); // Rafraîchir l'image
+}
+
+function toggleLunch() {
+    const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+    if(!currentId) return;
+    const key = 'reservaPro_lunch_' + currentId;
+    const current = localStorage.getItem(key) === 'true';
+    localStorage.setItem(key, !current);
+    updateDashboardUI();
+}
+
 function editRdv(id) {
     const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
     const rdv = rdvs.find(r => r.id === id);
@@ -448,6 +664,7 @@ function editRdv(id) {
     document.getElementById('rdvId').value = rdv.id;
     document.getElementById('rdvName').value = rdv.name;
     document.getElementById('rdvPhone').value = rdv.phone;
+    document.getElementById('rdvPro').value = rdv.proId || '';
     document.getElementById('rdvService').value = rdv.service;
     document.getElementById('rdvDate').value = rdv.date;
     document.getElementById('rdvComment').value = rdv.comment || '';
@@ -731,7 +948,63 @@ document.getElementById('themeToggle').addEventListener('click', () => {
     document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
 });
 
+function startClock() {
+    setInterval(() => {
+        const clock = document.getElementById('liveClock');
+        if (clock) {
+            const now = new Date();
+            clock.innerText = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Calcul temps restant (Pro Dashboard)
+        const workLabel = document.getElementById('workTimeLeft');
+        if (workLabel) {
+            const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
+            const [closeH, closeM] = hours.close.split(':').map(Number);
+            const [openH, openM] = hours.open.split(':').map(Number);
+            
+            const now = new Date();
+            const closeDate = new Date();
+            closeDate.setHours(closeH, closeM, 0, 0);
+            const openDate = new Date();
+            openDate.setHours(openH, openM, 0, 0);
+
+            let diff = closeDate - now;
+            if (now < openDate) diff = closeDate - openDate; // Si avant l'ouverture, affiche la durée totale
+
+            // Gestion Pause Déjeuner (-1h)
+            const currentId = typeof getCurrentProId === 'function' ? getCurrentProId() : null;
+            if (typeof userRole !== 'undefined' && userRole === 'pro' && currentId && localStorage.getItem('reservaPro_lunch_' + currentId) === 'true') {
+                diff -= 3600000; // Retrait d'une heure (ms)
+            }
+
+            if (diff <= 0) {
+                workLabel.innerText = "Terminé 🎉";
+                workLabel.style.color = "var(--success)";
+            } else {
+                const h = Math.floor(diff / (1000 * 60 * 60));
+                const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                workLabel.innerText = `Reste : ${h}h ${m}m`;
+            }
+
+            // Barre de progression
+            const progressBar = document.getElementById('workProgressBar');
+            if (progressBar) {
+                const total = closeDate - openDate;
+                const elapsed = now - openDate;
+                let pct = 0;
+                if (now >= closeDate) pct = 100;
+                else if (now > openDate) pct = (elapsed / total) * 100;
+                
+                progressBar.style.width = `${Math.max(0, Math.min(100, pct))}%`;
+                progressBar.style.background = pct >= 100 ? 'var(--success)' : 'var(--primary)';
+            }
+        }
+    }, 1000);
+}
+
 window.onload = () => {
+    startClock();
     displayPortfolio();
     // On ne charge pas les RDV au démarrage pour sécurité, seulement après login admin
 
@@ -741,6 +1014,7 @@ window.onload = () => {
     document.getElementById('rdvDate').min = now.toISOString().slice(0, 16);
     checkTodayRdv();
     loadHours();
+    populateProSelect(); // Charger la liste des pros dans le formulaire
     updateVacationUI();
 
     // Attachement optimisé de l'événement de recherche
@@ -769,6 +1043,16 @@ window.onload = () => {
 };
 
 function printDayPlanning() {
+    // Réinitialiser les filtres pour imprimer l'intégralité du planning du jour
+    document.getElementById('rdvSearch').value = '';
+    document.getElementById('vipFilter').checked = false;
+    displayAdminRdv();
+
+    // Mise à jour de la date dans l'en-tête d'impression
+    const dateStr = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const headerDate = document.getElementById('printHeaderDate');
+    if(headerDate) headerDate.innerText = `Planning du ${dateStr}`;
+
     document.body.classList.add('print-day-only');
     window.print();
 }
