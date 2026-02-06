@@ -1,4 +1,4 @@
-# ✂️ ReservaPro v11.4 — Dashboard Edition
+# ✂️ ReservaPro v11.6 — Dashboard Edition
 
 **ReservaPro** est une application web métier (PWA) conçue pour offrir aux coiffeurs et barbiers une solution de gestion robuste, 100% gratuite et totalement indépendante des abonnements tiers.
 
@@ -41,13 +41,17 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Animation Live** : Effet de rebond sur le badge de notification lors de l'arrivée d'un rendez-vous urgent (jour même).
 * **Rappel SMS** : Bouton d'action rapide pour ouvrir l'application SMS avec un message de rappel pré-rempli (Nom + Date).
 * **Blacklist** : Possibilité de bannir des numéros de téléphone pour empêcher les réservations indésirables.
+* **Suivi CA** : Calcul automatique et affichage du chiffre d'affaires estimé de la journée dans le tableau de bord.
+* **Tarifs Dynamiques** : Configuration des prix des prestations directement depuis l'interface d'administration.
 
 ---
 
 ## 🛠️ Configuration Technique
 
 ### Structure du projet
-* `index.html` : L'interface principale et la logique applicative.
+* `index.html` : Structure HTML de l'application.
+* `style.css` : Feuilles de style et thème visuel.
+* `script.js` : Logique métier et gestion des événements.
 * `manifest.json` : Configuration de l'application mobile installable.
 * `sw.js` : Service Worker pour la gestion du cache.
 

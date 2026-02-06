@@ -11,127 +11,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        :root {
-            --primary: #4361ee; --success: #2ec4b6; --danger: #e71d36;
-            --dark: #2b2d42; --light: #f8f9fa; --bg-body: #f0f2f5;
-            --bg-card: #ffffff; --text-main: #2b2d42; --text-sub: #666; --border: #ddd;
-        }
-
-        body.dark-mode {
-            --bg-body: #121212; --bg-card: #1e1e1e; --text-main: #f8f9fa;
-            --text-sub: #bbb; --border: #333; --light: #2b2d42;
-        }
-
-        * { box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; transition: 0.3s; overflow-x: hidden; }
-
-        nav { background: var(--dark); display: flex; justify-content: center; padding: 10px; position: sticky; top: 0; z-index: 1000; gap: 5px; }
-        nav button { background: transparent; border: none; color: white; padding: 10px 15px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-        nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
-        #btn-admin { color: #ffbe0b; border: 1px solid #ffbe0b; border-radius: 20px; margin-left: 10px; position: relative; }
-        #btn-admin-panel { position: relative; }
-        .badge-count { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--dark); display: none; min-width: 20px; text-align: center; }
-
-        header { background-color: var(--dark); color: white; padding: 20px 0; text-align: center; position: relative; }
-        #themeToggle { position: absolute; right: 20px; top: 25px; background: transparent; border: 1.5px solid white; color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
-
-        .container { width: 95%; max-width: 1000px; margin: 20px auto; display: none; gap: 20px; }
-        .container.active { display: block; }
-
-        .card { background: var(--bg-card); padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; margin-bottom: 20px; }
-        .calendly-card { padding: 0; overflow: hidden; min-height: 750px; }
-
-        .admin-only { display: none !important; }
-        body.is-admin .admin-only { display: block !important; }
-
-        .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
-        .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; cursor: pointer; transition: transform 0.2s; }
-        .portfolio-item:hover { transform: scale(1.02); }
-        .portfolio-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-        .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
-
-        .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
-        
-        /* Lightbox */
-        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
-        .lightbox.active { display: flex; opacity: 1; }
-        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-
-        /* Styles Formulaire Maison */
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-body); color: var(--text-main); }
-        .btn-submit { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 1rem; cursor: pointer; }
-        
-        /* Styles Liste RDV Admin */
-        .rdv-item { background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .rdv-info h4 { margin: 0 0 5px 0; }
-        .rdv-info p { margin: 0; font-size: 0.9rem; color: var(--text-sub); }
-        .empty-msg { text-align: center; color: var(--text-sub); font-style: italic; padding: 20px; }
-
-        .log-item { font-size: 0.8rem; padding: 8px; border-bottom: 1px solid var(--border); color: var(--text-sub); }
-        .log-date { font-size: 0.7rem; color: #999; display: block; margin-bottom: 2px; }
-
-        /* --- DASHBOARD HACKER THEME --- */
-        #admin-panel-section {
-            --hacker-bg: #0d1117; --hacker-card: #161b22; --hacker-border: #30363d;
-            --hacker-text: #c9d1d9; --hacker-accent: #58a6ff; --hacker-green: #2ea043; --hacker-red: #da3633;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-        }
-        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .dashboard-card {
-            background: var(--hacker-card); border: 1px solid var(--hacker-border); border-radius: 6px;
-            padding: 20px; color: var(--hacker-text); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .dashboard-card h3 {
-            color: var(--hacker-accent); border-bottom: 1px solid var(--hacker-border); padding-bottom: 10px;
-            margin-top: 0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px;
-        }
-        .stat-box {
-            background: var(--hacker-bg); border: 1px solid var(--hacker-border); padding: 15px; border-radius: 4px;
-            text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .stat-number { font-size: 1.8rem; color: var(--hacker-green); font-weight: bold; line-height: 1; }
-        .stat-label { font-size: 0.75rem; color: #8b949e; margin-top: 5px; text-transform: uppercase; }
-        
-        .btn-hacker {
-            background: var(--hacker-green); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px;
-            border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; font-weight: bold; transition: 0.2s; text-transform: uppercase;
-        }
-        .btn-hacker:hover { background: #3fb950; }
-        .btn-hacker-danger { background: var(--hacker-red); }
-        .btn-hacker-danger:hover { background: #f85149; }
-        
-        .hacker-input {
-            background: var(--hacker-bg); border: 1px solid var(--hacker-border); color: var(--hacker-text);
-            padding: 8px; border-radius: 4px; font-family: inherit; width: 100%;
-        }
-        .hacker-input:focus { border-color: var(--hacker-accent); outline: none; }
-
-        /* Override RDV items for hacker theme */
-        #adminRdvList .rdv-item {
-            background: var(--hacker-bg); border-left: 3px solid var(--hacker-accent);
-            border-radius: 4px; margin-bottom: 10px; color: var(--hacker-text); border-top: 1px solid var(--hacker-border); border-right: 1px solid var(--hacker-border); border-bottom: 1px solid var(--hacker-border);
-        }
-        #adminRdvList .rdv-item h4 { color: var(--hacker-text); }
-        #adminRdvList .rdv-item p { color: #8b949e; }
-        #adminLogs {
-            background: #0d1117; border: 1px solid #30363d; padding: 10px; font-family: 'Consolas', monospace; font-size: 0.8rem; color: #2ea043;
-        }
-
-        .stat-bar-container { width: 100%; background: #21262d; height: 4px; border-radius: 2px; margin-top: 8px; overflow: hidden; }
-        .stat-bar { height: 100%; background: var(--hacker-green); width: 0%; transition: width 0.5s ease-out; }
-
-        /* Animation Badge */
-        @keyframes bounce {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-            100% { transform: scale(1); }
-        }
-        .bounce { animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -259,11 +139,18 @@
             <div id="blacklistContainer" style="height: 150px; overflow-y: auto;"></div>
         </div>
 
+        <!-- Pricing Widget -->
+        <div class="dashboard-card">
+            <h3><i class="fa-solid fa-tag"></i> Pricing_Matrix</h3>
+            <div id="pricingInputs"></div>
+            <button onclick="savePrices()" class="btn-hacker" style="width:100%; margin-top:10px;">UPDATE_PRICES</button>
+        </div>
+
         <!-- Appointments List Widget -->
         <div class="dashboard-card" style="grid-column: span 2; min-height: 400px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
                 <h3><i class="fa-solid fa-list"></i> Appointments_DB</h3>
-                <input type="text" id="rdvSearch" placeholder="> Search_Query..." onkeyup="displayAdminRdv()" class="hacker-input" style="width:200px;">
+                <input type="text" id="rdvSearch" placeholder="> Search_Query..." class="hacker-input" style="width:200px;">
             </div>
             <div id="adminRdvList"></div>
         </div>
@@ -292,12 +179,22 @@
     const STORAGE_KEY_SUPER_PWD = 'reservaPro_superHash';
     const STORAGE_KEY_VACATION = 'reservaPro_vacation';
     const STORAGE_KEY_BLACKLIST = 'reservaPro_blacklist';
+    const STORAGE_KEY_PRICES = 'reservaPro_prices';
+
+    const DEFAULT_PRICES = {
+        "Coupe Homme": 20,
+        "Barbe": 15,
+        "Coupe + Barbe": 30,
+        "Coupe Enfant": 15
+    };
+    let prices = JSON.parse(localStorage.getItem(STORAGE_KEY_PRICES)) || DEFAULT_PRICES;
 
     let isAdmin = false;
     const DEFAULT_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // admin123
     const DEFAULT_SUPER_HASH = "4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2"; // superadmin123
 
     // --- SÉCURITÉ ++ (Session Timeout) ---
+    // Optimisation : Suppression de 'mousemove' et 'scroll' qui sont trop gourmands en ressources
     let sessionTimeout;
     function startSessionTimer() {
         clearTimeout(sessionTimeout);
@@ -307,7 +204,16 @@
     }
     function stopSessionTimer() { clearTimeout(sessionTimeout); }
     function resetSessionTimer() { if(isAdmin) startSessionTimer(); }
-    ['click', 'mousemove', 'keydown', 'scroll'].forEach(evt => document.addEventListener(evt, resetSessionTimer, { passive: true }));
+    ['click', 'keydown'].forEach(evt => document.addEventListener(evt, resetSessionTimer, { passive: true }));
+
+    // Optimisation : Debounce pour la recherche (évite de recalculer à chaque lettre tapée)
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
 
     // Sécurité : Échapper les caractères HTML pour éviter les failles XSS
     function escapeHtml(text) {
@@ -355,6 +261,7 @@
         displayPortfolio();
         displayAdminRdv();
         displayBlacklist();
+        renderPricingWidget();
     }
 
     async function changePassword() {
@@ -584,6 +491,26 @@
         displayBlacklist();
     }
 
+    function renderPricingWidget() {
+        const container = document.getElementById('pricingInputs');
+        if(!container) return;
+        container.innerHTML = Object.entries(prices).map(([service, price]) => `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label style="font-size:0.8rem; color:#8b949e;">${service}</label>
+                <input type="number" data-service="${service}" value="${price}" class="hacker-input price-input" style="width:70px; text-align:right;">
+            </div>
+        `).join('');
+    }
+
+    function savePrices() {
+        const inputs = document.querySelectorAll('.price-input');
+        inputs.forEach(input => { prices[input.dataset.service] = parseFloat(input.value) || 0; });
+        localStorage.setItem(STORAGE_KEY_PRICES, JSON.stringify(prices));
+        addLog('Configuration', 'Tarifs mis à jour');
+        alert("Tarifs mis à jour avec succès !");
+        displayAdminRdv(); // Recalcul du CA
+    }
+
     async function clearLogs() {
         if(!confirm("⚠️ Action Critique : Effacer tout l'historique d'activité ?")) return;
         
@@ -606,6 +533,13 @@
         const searchTerm = document.getElementById('rdvSearch').value.toLowerCase();
         let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
         
+        // Calcul CA du jour
+        const now = new Date();
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        const dailyRevenue = rdvs
+            .filter(r => r.date.split('T')[0] === todayStr)
+            .reduce((sum, r) => sum + (prices[r.service] || 0), 0);
+
         // Calcul des statistiques (sur la totalité des RDV)
         const stats = rdvs.reduce((acc, r) => {
             const s = r.service || 'Autre';
@@ -617,8 +551,13 @@
         displayBlacklist();
         
         const maxVal = Math.max(...Object.values(stats), 1);
+        
+        const revenueHtml = `<div class="stat-box" style="border-color:var(--hacker-accent);">
+            <span class="stat-number" style="color:var(--hacker-accent);">${dailyRevenue}€</span>
+            <span class="stat-label">CA DU JOUR</span>
+        </div>`;
 
-        statsContainer.innerHTML = Object.entries(stats).map(([k, v]) => {
+        statsContainer.innerHTML = revenueHtml + (Object.entries(stats).map(([k, v]) => {
             const percent = (v / maxVal) * 100;
             return `<div class="stat-box" style="align-items: stretch; text-align: left;">
                 <div style="display:flex; justify-content:space-between; align-items:flex-end;">
@@ -627,7 +566,7 @@
                 </div>
                 <div class="stat-bar-container"><div class="stat-bar" style="width:${percent}%"></div></div>
             </div>`;
-        }).join('') || '<div class="stat-box" style="grid-column:1/-1"><span class="stat-label">NO_DATA</span></div>';
+        }).join('') || '');
 
         if (searchTerm) {
             rdvs = rdvs.filter(r => r.name.toLowerCase().includes(searchTerm));
@@ -822,7 +761,8 @@
             hours: JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" },
             logs: JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)) || [],
             vacation: localStorage.getItem(STORAGE_KEY_VACATION),
-            blacklist: JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || []
+            blacklist: JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [],
+            prices: JSON.parse(localStorage.getItem(STORAGE_KEY_PRICES)) || DEFAULT_PRICES
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -857,6 +797,10 @@
                 if(data.logs) localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(data.logs));
                 if(data.vacation) localStorage.setItem(STORAGE_KEY_VACATION, data.vacation);
                 if(data.blacklist) localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(data.blacklist));
+                if(data.prices) {
+                    localStorage.setItem(STORAGE_KEY_PRICES, JSON.stringify(data.prices));
+                    prices = data.prices;
+                }
                 
                 alert("Données restaurées avec succès !");
                 addLog('Système', 'Restauration effectuée');
@@ -865,6 +809,7 @@
                 checkTodayRdv();
                 updateVacationUI();
                 displayBlacklist();
+                renderPricingWidget();
             } catch (err) { alert("Erreur d'importation : " + err.message); }
             input.value = '';
         };
@@ -964,6 +909,9 @@
         checkTodayRdv();
         loadHours();
         updateVacationUI();
+
+        // Attachement optimisé de l'événement de recherche
+        document.getElementById('rdvSearch').addEventListener('input', debounce(() => displayAdminRdv(), 300));
     };
 
     // Service Worker Registration (à la fin pour la perf)
