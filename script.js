@@ -492,7 +492,10 @@ function updateDashboardUI() {
         if (pro && title) {
             // Chargement du thème sauvegardé
             const savedTheme = localStorage.getItem('reservaPro_theme_' + pro.id) || '';
-            if(savedTheme) document.body.classList.add(savedTheme);
+            if(savedTheme) {
+                document.body.classList.add(savedTheme);
+                updateMetaThemeColor();
+            }
 
             const isLunch = localStorage.getItem('reservaPro_lunch_' + pro.id) === 'true';
             const quotes = [
@@ -554,6 +557,60 @@ function changeProTheme(themeClass) {
     if(themeClass) document.body.classList.add(themeClass);
     
     localStorage.setItem('reservaPro_theme_' + currentId, themeClass);
+    updateMetaThemeColor();
+}
+
+let natureInterval;
+
+function startNatureEffects() {
+    const container = document.getElementById('nature-effects-container');
+    if (!container || natureInterval) return; // Déjà actif ou conteneur introuvable
+
+    // Création initiale de quelques feuilles pour ne pas attendre
+    for(let i=0; i<5; i++) createLeaf(container);
+
+    natureInterval = setInterval(() => createLeaf(container), 2500); // Une nouvelle feuille toutes les 2.5s (subtil)
+}
+
+function createLeaf(container) {
+    const leaf = document.createElement('i');
+    leaf.classList.add('fa-solid', 'fa-leaf', 'falling-leaf');
+    
+    const startLeft = Math.random() * 100; // Position horizontale aléatoire
+    const duration = Math.random() * 10 + 15; // Chute lente (15-25s)
+    const size = Math.random() * 10 + 10; // Taille variable (10-20px)
+    
+    leaf.style.left = startLeft + '%';
+    leaf.style.animation = `fall-sway ${duration}s linear forwards`;
+    leaf.style.fontSize = size + 'px';
+    leaf.style.opacity = Math.random() * 0.4 + 0.2; // Transparence variable
+    leaf.style.color = Math.random() > 0.5 ? 'var(--primary)' : '#8d6e63'; // Vert ou Marron automne
+    
+    container.appendChild(leaf);
+    
+    // Nettoyage après l'animation
+    setTimeout(() => { if(leaf.parentNode) leaf.remove(); }, duration * 1000);
+}
+
+function stopNatureEffects() {
+    if (natureInterval) {
+        clearInterval(natureInterval);
+        natureInterval = null;
+    }
+    const container = document.getElementById('nature-effects-container');
+    if (container) container.innerHTML = '';
+}
+
+function updateMetaThemeColor() {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+        const color = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+        meta.setAttribute('content', color);
+    }
+    // Gestion des effets selon le thème
+    const isCustomTheme = document.body.classList.contains('theme-girly') || document.body.classList.contains('theme-cyberpunk') || document.body.classList.contains('theme-gothic');
+    if (isCustomTheme) stopNatureEffects();
+    else startNatureEffects();
 }
 
 function openProProfile() {
@@ -1005,6 +1062,7 @@ function startClock() {
 
 window.onload = () => {
     startClock();
+    startNatureEffects(); // Démarrage par défaut (Thème Nature)
     displayPortfolio();
     // On ne charge pas les RDV au démarrage pour sécurité, seulement après login admin
 

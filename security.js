@@ -333,6 +333,7 @@ async function handleLogin() {
         document.body.classList.remove('theme-girly', 'theme-cyberpunk', 'theme-gothic'); // Reset thème
         document.getElementById('btn-admin').innerHTML = "Login";
         stopSessionTimer();
+        if(typeof updateMetaThemeColor === 'function') updateMetaThemeColor();
         switchTab('booking');
         if(typeof addLog === 'function') addLog('Déconnexion', 'Manuelle');
     }
