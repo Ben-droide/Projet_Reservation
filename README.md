@@ -1,4 +1,4 @@
-# ✂️ ReservaPro v11.6 — Dashboard Edition
+# ✂️ ReservaPro v12.0 — Local Edition
 
 **ReservaPro** est une application web métier (PWA) conçue pour offrir aux coiffeurs et barbiers une solution de gestion robuste, 100% gratuite et totalement indépendante des abonnements tiers.
 
@@ -19,11 +19,11 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Offline Ready** : Utilisation d'un Service Worker pour permettre la consultation du portfolio même avec une connexion instable.
 * **Design Mobile-First** : Interface ultra-rapide et optimisée pour une utilisation à une main.
 
-### ☁️ Portfolio Cloud & Scalabilité
-* **Cloudinary Media API** : Hébergement des photos de réalisations sur un serveur cloud dédié (`dkfbcedvr`).
-* **Architecture Multi-Salons** : Gestion de plusieurs établissements via une seule base de code et des paramètres d'URL dynamiques (ex: `?salon=evry`).
-* **Upload en temps réel** : L'administrateur peut uploader ses photos directement depuis son poste de travail.
-* **Lightbox HD** : Visualisation des réalisations en haute définition au clic.
+### 🖼️ Portfolio Local & Performance
+* **Stockage 100% Local** : Les photos sont compressées et stockées directement dans le navigateur (LocalStorage) via encodage Base64. Aucune dépendance cloud ni serveur externe.
+* **Compression Intelligente** : Algorithme intégré pour optimiser le poids des images à la volée avant stockage.
+* **Gestion Autonome** : Ajout et suppression de photos instantanés depuis l'interface admin.
+* **Lightbox HD** : Visualisation des réalisations en mode immersion.
 
 ### 🔐 Sécurité
 * **Authentification Admin** : Accès au back-office protégé par hachage cryptographique **SHA-256** (Web Crypto API).
@@ -42,6 +42,8 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Rappel SMS** : Bouton d'action rapide pour ouvrir l'application SMS avec un message de rappel pré-rempli (Nom + Date).
 * **Blacklist** : Possibilité de bannir des numéros de téléphone pour empêcher les réservations indésirables.
 * **Suivi CA** : Calcul automatique et affichage du chiffre d'affaires estimé de la journée dans le tableau de bord.
+* **Graphique Hebdomadaire** : Visualisation interactive des revenus sur les 7 derniers jours.
+* **Impression Planning** : Mise en page spécifique pour imprimer la liste des rendez-vous du jour.
 * **Tarifs Dynamiques** : Configuration des prix des prestations directement depuis l'interface d'administration.
 * **Tags Clients** : Catégorisation visuelle des clients (VIP, Nouveau, Retardataire) visible uniquement par l'admin.
 * **Interface Authentification** : Mire de connexion sécurisée et stylisée (Modal) remplaçant les alertes navigateur.
