@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#4361ee">
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
-  }
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="description" content="Réservez votre rendez-vous coiffure en ligne et découvrez mes dernières réalisations. Application simple et rapide.">
     <title>ReservaPro | Portfolio Cloud</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -33,7 +29,8 @@
         nav { background: var(--dark); display: flex; justify-content: center; padding: 10px; position: sticky; top: 0; z-index: 1000; gap: 5px; }
         nav button { background: transparent; border: none; color: white; padding: 10px 15px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
         nav button.active { border-bottom: 3px solid var(--primary); color: var(--primary); }
-        #btn-admin { color: #ffbe0b; border: 1px solid #ffbe0b; border-radius: 20px; margin-left: 10px; }
+        #btn-admin { color: #ffbe0b; border: 1px solid #ffbe0b; border-radius: 20px; margin-left: 10px; position: relative; }
+        .badge-count { position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 2px solid var(--dark); display: none; min-width: 20px; text-align: center; }
 
         header { background-color: var(--dark); color: white; padding: 20px 0; text-align: center; position: relative; }
         #themeToggle { position: absolute; right: 20px; top: 25px; background: transparent; border: 1.5px solid white; color: white; padding: 5px 12px; border-radius: 20px; cursor: pointer; }
@@ -48,11 +45,29 @@
         body.is-admin .admin-only { display: block !important; }
 
         .portfolio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
-        .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; }
-        .portfolio-item img { width: 100%; height: 100%; object-fit: cover; }
+        .portfolio-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1/1; background: #ddd; cursor: pointer; transition: transform 0.2s; }
+        .portfolio-item:hover { transform: scale(1.02); }
+        .portfolio-item img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
         .btn-del { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; z-index: 10; }
 
         .map-container { border-radius: 16px; overflow: hidden; height: 300px; border: 1.5px solid var(--border); }
+        
+        /* Lightbox */
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000; opacity: 0; transition: opacity 0.3s; }
+        .lightbox.active { display: flex; opacity: 1; }
+        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+
+        /* Styles Formulaire Maison */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-body); color: var(--text-main); }
+        .btn-submit { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; width: 100%; font-size: 1rem; cursor: pointer; }
+        
+        /* Styles Liste RDV Admin */
+        .rdv-item { background: var(--bg-body); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .rdv-info h4 { margin: 0 0 5px 0; }
+        .rdv-info p { margin: 0; font-size: 0.9rem; color: var(--text-sub); }
+        .empty-msg { text-align: center; color: var(--text-sub); font-style: italic; padding: 20px; }
     </style>
 </head>
 <body>
@@ -61,6 +76,7 @@
     <button onclick="switchTab('booking')" id="btn-booking" class="active">Réserver</button>
     <button onclick="switchTab('portfolio')" id="btn-portfolio">Portfolio</button>
     <button onclick="switchTab('contact')" id="btn-contact">Contact</button>
+    <button onclick="switchTab('admin-panel')" id="btn-admin-panel" class="admin-only"><i class="fa-solid fa-gauge"></i> Admin <span id="adminBadge" class="badge-count"></span></button>
     <button onclick="handleLogin()" id="btn-admin"><i class="fa-solid fa-lock"></i> Login</button>
 </nav>
 
@@ -69,12 +85,43 @@
     <button id="themeToggle"><i class="fa-solid fa-moon"></i></button>
 </header>
 
+<main>
 <div id="booking-section" class="container active">
-    <div class="card calendly-card">
-        <div class="calendly-inline-widget" 
-             data-url="https://calendly.com/benoitrenaux1999?hide_owner=1&hide_event_type_details=1&hide_gdpr_banner=1" 
-             style="min-width:320px;height:750px;"></div>
-        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    <div class="card">
+        <h3>📅 Prendre Rendez-vous</h3>
+        <form id="bookingForm" onsubmit="handleBooking(event)">
+            <input type="hidden" id="rdvId">
+            <div class="form-group">
+                <label>Votre Nom</label>
+                <input type="text" id="rdvName" required placeholder="Ex: Jean Dupont">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="rdvPhone" required placeholder="06 12 34 56 78">
+            </div>
+            <div class="form-group">
+                <label>Prestation</label>
+                <select id="rdvService" required>
+                    <option value="">Choisir une prestation...</option>
+                    <option value="Coupe Homme">Coupe Homme</option>
+                    <option value="Barbe">Barbe</option>
+                    <option value="Coupe + Barbe">Coupe + Barbe</option>
+                    <option value="Coupe Enfant">Coupe Enfant</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date & Heure</label>
+                <input type="datetime-local" id="rdvDate" required>
+            </div>
+            <div class="form-group">
+                <label>Commentaire (Optionnel)</label>
+                <textarea id="rdvComment" rows="2" placeholder="Précisions particulières..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--bg-body); color:var(--text-main); font-family:inherit;"></textarea>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="submit" class="btn-submit" id="btnSubmit">Confirmer la réservation</button>
+                <button type="button" id="btnCancelEdit" onclick="cancelEdit()" style="display:none; background:var(--text-sub); color:white; border:none; padding:12px 20px; border-radius:8px; cursor:pointer;">Annuler</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -94,29 +141,68 @@
         <h3>Coordonnées</h3>
         <p><i class="fa-solid fa-phone"></i> 01 23 45 67 89</p>
         <p><i class="fa-solid fa-location-dot"></i> 123 Rue de la Coiffure, Paris</p>
+        <div id="displayHours" style="margin-top:15px; padding-top:15px; border-top:1px solid var(--border);"></div>
     </div>
     <div class="map-container">
         <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937595!2d2.2922926156736!3d48.85837007928746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e2964e34e2d%3A0x8ddca97ef0800b3!2sTour%20Eiffel!5e0!3m2!1sfr!2sfr!4v1625123456789!5m2!1sfr!2sfr" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
 </div>
 
-<script>
-    // --- TES INFOS CLOUDINARY ---
-    const CLOUD_NAME = "dkfbcedvr";
-    const UPLOAD_PRESET = "reservapro_preset"; 
-    const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+<div id="admin-panel-section" class="container">
+    <div class="card admin-only">
+        <h3>⚙️ Configuration</h3>
+        <div class="form-group">
+            <label>Horaires d'ouverture (Tous les jours)</label>
+            <div style="display:flex; gap:10px;">
+                <input type="time" id="adminOpenTime" required>
+                <span style="align-self:center">à</span>
+                <input type="time" id="adminCloseTime" required>
+            </div>
+        </div>
+        <button onclick="saveHours()" class="btn-submit" style="background:var(--dark); width:auto;">Enregistrer les horaires</button>
+    </div>
+    <div class="card admin-only">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0;">Gestion des Rendez-vous</h3>
+            <div style="display:flex; gap:10px;">
+                <button onclick="changePassword()" style="background:var(--dark); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;" title="Changer mot de passe"><i class="fa-solid fa-key"></i></button>
+                <button onclick="document.getElementById('importInput').click()" style="background:var(--text-sub); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-upload"></i> Import</button>
+                <button onclick="exportData()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:20px; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-download"></i> Backup</button>
+            </div>
+            <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)">
+        </div>
+        <div id="adminStats" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;"></div>
+        <input type="text" id="rdvSearch" placeholder="🔍 Rechercher un client..." onkeyup="displayAdminRdv()" style="width:100%; padding:10px; margin-bottom:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg-body); color:var(--text-main);">
+        <div id="adminRdvList"></div>
+    </div>
+</div>
+</main>
 
-    // --- 📸 LISTE DES PHOTOS VISIBLES PAR TOUT LE MONDE ---
-    // Colle ici les URLs que tu récupères sur ton compte Cloudinary
-    const IMAGES_PERMANENTES = [
-        "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770047092/bdfqj2q5ntyfphrxk1bs.png",
-        "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770048572/ar16mu7gsuxkc1ogpevv.png",
-        "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770050228/pehlej07gasxa26lhmke.jpg",
-        "https://res.cloudinary.com/dkfbcedvr/image/upload/v1770053677/omlplbybaxzygsp4c4ky.png"
-    ];
+<div id="lightbox" class="lightbox" onclick="this.classList.remove('active')"></div>
+
+<script>
+    // Stockage Local uniquement
+    const STORAGE_KEY_IMG = 'reservaPro_portfolio';
+    const STORAGE_KEY_RDV = 'reservaPro_rdv';
+    const STORAGE_KEY_PWD = 'reservaPro_adminHash';
+    const STORAGE_KEY_HOURS = 'reservaPro_hours';
 
     let isAdmin = false;
-    const HASH_ADMIN = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
+    const DEFAULT_HASH = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9"; // admin123
+
+    // Sécurité : Échapper les caractères HTML pour éviter les failles XSS
+    function escapeHtml(text) {
+        return text == null ? '' : String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function getAdminHash() {
+        return localStorage.getItem(STORAGE_KEY_PWD) || DEFAULT_HASH;
+    }
 
     async function hashPassword(str) {
         const utf8 = new TextEncoder().encode(str);
@@ -127,17 +213,36 @@
     async function handleLogin() {
         if (!isAdmin) {
             const p = prompt("Admin Password :");
-            if (await hashPassword(p) === HASH_ADMIN) {
+            if (p && await hashPassword(p) === getAdminHash()) {
                 isAdmin = true;
                 document.body.classList.add('is-admin');
                 document.getElementById('btn-admin').innerHTML = "Logout";
+                switchTab('admin-panel');
             } else { alert("Refusé"); }
         } else {
             isAdmin = false;
             document.body.classList.remove('is-admin');
             document.getElementById('btn-admin').innerHTML = "Login";
+            switchTab('booking');
         }
         displayPortfolio();
+        displayAdminRdv();
+    }
+
+    async function changePassword() {
+        const currentP = prompt("Entrez le mot de passe actuel :");
+        if (!currentP) return;
+        
+        if (await hashPassword(currentP) !== getAdminHash()) {
+            alert("Mot de passe actuel incorrect.");
+            return;
+        }
+
+        const newP = prompt("Entrez le nouveau mot de passe :");
+        if (!newP) return;
+        
+        localStorage.setItem(STORAGE_KEY_PWD, await hashPassword(newP));
+        alert("Mot de passe modifié avec succès !");
     }
 
     function switchTab(t) {
@@ -147,52 +252,323 @@
         document.getElementById('btn-' + t).classList.add('active');
     }
 
-    // --- UPLOAD VERS LE CLOUD ---
+    // --- GESTION DES RDV (LOCAL) ---
+    function handleBooking(e) {
+        e.preventDefault();
+        const idInput = document.getElementById('rdvId');
+        const isEdit = idInput.value !== '';
+        const name = document.getElementById('rdvName').value;
+        const phone = document.getElementById('rdvPhone').value;
+        const service = document.getElementById('rdvService').value;
+        const date = document.getElementById('rdvDate').value;
+        const comment = document.getElementById('rdvComment').value;
+
+        if (new Date(date) < new Date()) {
+            alert("Impossible de réserver une date dans le passé.");
+            return;
+        }
+
+        const rdvTime = date.split('T')[1];
+        const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
+        if (rdvTime < hours.open || rdvTime > hours.close) {
+            alert(`Désolé, le salon est ouvert uniquement de ${hours.open} à ${hours.close}.`);
+            return;
+        }
+
+        let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+
+        if (isEdit) {
+            const id = parseInt(idInput.value);
+            const index = rdvs.findIndex(r => r.id === id);
+            if (index !== -1) {
+                rdvs[index] = { id, name, phone, service, date, comment };
+                alert("Rendez-vous modifié avec succès !");
+            }
+        } else {
+            const newRdv = { id: Date.now(), name, phone, service, date, comment };
+            rdvs.push(newRdv);
+            alert(`Rendez-vous confirmé pour ${name} !\n(Note: Ceci est une démo locale)`);
+        }
+
+        localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
+        cancelEdit(); // Réinitialise le formulaire et le mode édition
+        displayAdminRdv(); // Mise à jour immédiate si admin connecté
+        checkTodayRdv();
+    }
+
+    function displayAdminRdv() {
+        if (!isAdmin) return;
+        const list = document.getElementById('adminRdvList');
+        const statsContainer = document.getElementById('adminStats');
+        const searchTerm = document.getElementById('rdvSearch').value.toLowerCase();
+        let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+        
+        // Calcul des statistiques (sur la totalité des RDV)
+        const stats = rdvs.reduce((acc, r) => {
+            const s = r.service || 'Autre';
+            acc[s] = (acc[s] || 0) + 1;
+            return acc;
+        }, {});
+
+        statsContainer.innerHTML = Object.entries(stats).map(([k, v]) => 
+            `<div style="background:var(--bg-body); padding:5px 10px; border-radius:6px; font-size:0.85rem; border:1px solid var(--border);">${k} : <strong>${v}</strong></div>`
+        ).join('') || '<span style="font-size:0.85rem; color:var(--text-sub);">Aucune stat pour le moment.</span>';
+
+        if (searchTerm) {
+            rdvs = rdvs.filter(r => r.name.toLowerCase().includes(searchTerm));
+        }
+
+        if (rdvs.length === 0) {
+            list.innerHTML = '<div class="empty-msg">Aucun rendez-vous trouvé.</div>';
+            return;
+        }
+
+        // Tri chronologique
+        rdvs.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        // Groupement par date
+        const now = new Date();
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        const groups = { today: [], future: [], past: [] };
+
+        rdvs.forEach(rdv => {
+            const rdvDateStr = rdv.date.split('T')[0];
+            if (rdvDateStr === todayStr) groups.today.push(rdv);
+            else if (rdvDateStr > todayStr) groups.future.push(rdv);
+            else groups.past.push(rdv);
+        });
+
+        // Fonction d'affichage unitaire
+        const renderRdv = (rdv) => {
+            const dateFmt = new Date(rdv.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            return `
+            <div class="rdv-item">
+                <div class="rdv-info">
+                    <h4>${escapeHtml(rdv.name)} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
+                    <p><i class="fa-regular fa-clock"></i> ${dateFmt}</p>
+                    <p><i class="fa-solid fa-phone"></i> ${escapeHtml(rdv.phone)}</p>
+                    ${rdv.comment ? `<p style="font-style:italic; margin-top:5px; font-size:0.85rem; color:var(--text-main);">"${escapeHtml(rdv.comment)}"</p>` : ''}
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="tel:${escapeHtml(rdv.phone)}" style="background:var(--success); color:white; width:25px; height:25px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none;" title="Appeler" aria-label="Appeler"><i class="fa-solid fa-phone" style="font-size:12px;"></i></a>
+                    <button class="btn-del" style="position:static; background:var(--primary);" onclick="editRdv(${rdv.id})" title="Modifier" aria-label="Modifier"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-del" style="position:static;" onclick="deleteRdv(${rdv.id})" title="Supprimer" aria-label="Supprimer">×</button>
+                </div>
+            </div>`;
+        };
+
+        // Construction de l'affichage final
+        let html = '';
+        if (groups.today.length) html += `<h4 style="color:var(--primary); margin:10px 0; border-bottom:1px solid var(--border); padding-bottom:5px;">Aujourd'hui</h4>` + groups.today.map(renderRdv).join('');
+        if (groups.future.length) html += `<h4 style="color:var(--text-main); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">À venir</h4>` + groups.future.map(renderRdv).join('');
+        if (groups.past.length) html += `<h4 style="color:var(--text-sub); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">Passés</h4>` + groups.past.map(renderRdv).join('');
+        
+        list.innerHTML = html;
+    }
+
+    function editRdv(id) {
+        const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+        const rdv = rdvs.find(r => r.id === id);
+        if (!rdv) return;
+
+        switchTab('booking');
+
+        // Remplissage du formulaire
+        document.getElementById('rdvId').value = rdv.id;
+        document.getElementById('rdvName').value = rdv.name;
+        document.getElementById('rdvPhone').value = rdv.phone;
+        document.getElementById('rdvService').value = rdv.service;
+        document.getElementById('rdvDate').value = rdv.date;
+        document.getElementById('rdvComment').value = rdv.comment || '';
+
+        // Changement d'état de l'interface
+        document.getElementById('btnSubmit').innerText = "Modifier le rendez-vous";
+        document.getElementById('btnCancelEdit').style.display = 'block';
+        document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+        const wasEditing = document.getElementById('rdvId').value !== '';
+        document.getElementById('bookingForm').reset();
+        document.getElementById('rdvId').value = '';
+        document.getElementById('btnSubmit').innerText = "Confirmer la réservation";
+        document.getElementById('btnCancelEdit').style.display = 'none';
+
+        if (wasEditing && isAdmin) {
+            switchTab('admin-panel');
+        }
+    }
+
+    function deleteRdv(id) {
+        if (!confirm("Êtes-vous sûr de vouloir supprimer ce rendez-vous ?")) return;
+        let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+        rdvs = rdvs.filter(r => r.id !== id);
+        localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
+        displayAdminRdv();
+        checkTodayRdv();
+    }
+
+    function checkTodayRdv() {
+        const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+        const now = new Date();
+        const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+        
+        const count = rdvs.filter(r => r.date.split('T')[0] === todayStr).length;
+        const badge = document.getElementById('adminBadge');
+        
+        if (count > 0) {
+            badge.style.display = 'inline-block';
+            badge.innerText = count;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    function saveHours() {
+        const open = document.getElementById('adminOpenTime').value;
+        const close = document.getElementById('adminCloseTime').value;
+        if(!open || !close) return alert("Veuillez remplir les deux horaires.");
+        
+        localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify({ open, close }));
+        alert("Horaires mis à jour !");
+        loadHours();
+    }
+
+    function loadHours() {
+        const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
+        
+        // Admin inputs
+        const adminOpen = document.getElementById('adminOpenTime');
+        const adminClose = document.getElementById('adminCloseTime');
+        if(adminOpen && adminClose) {
+            adminOpen.value = hours.open;
+            adminClose.value = hours.close;
+        }
+
+        // Contact display
+        const display = document.getElementById('displayHours');
+        if(display) {
+            display.innerHTML = `<h4 style="margin:0 0 5px 0;">🕒 Horaires d'ouverture</h4><p style="margin:0;">Lundi - Samedi : ${hours.open} - ${hours.close}</p>`;
+        }
+    }
+
+    function exportData() {
+        const data = {
+            rdvs: JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [],
+            portfolio: JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [],
+            hours: JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" }
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reservaPro_backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function importData(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        if (!confirm("⚠️ Attention : L'importation va ÉCRASER toutes les données actuelles (RDV et Portfolio). Voulez-vous continuer ?")) {
+            input.value = ''; // Reset pour permettre de ré-essayer
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!data.rdvs || !data.portfolio) throw new Error("Format de fichier invalide (clés manquantes)");
+
+                localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(data.rdvs));
+                localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(data.portfolio));
+                if(data.hours) localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify(data.hours));
+                
+                alert("Données restaurées avec succès !");
+                displayAdminRdv();
+                displayPortfolio();
+                checkTodayRdv();
+            } catch (err) { alert("Erreur d'importation : " + err.message); }
+            input.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    // --- PORTFOLIO LOCAL (Base64) ---
     document.getElementById('imageInput').addEventListener('change', async function(e) {
         const file = e.target.files[0];
         if (!file) return;
 
         const btnLabel = document.querySelector('.upload-label');
-        btnLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi...';
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', UPLOAD_PRESET);
+        btnLabel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Traitement...';
 
         try {
-            const res = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
-            const data = await res.json();
+            // Compression de l'image pour ne pas saturer le LocalStorage
+            const base64Img = await compressImage(file, 800, 0.7);
             
-            // On ajoute l'URL à ton stockage local pour que TU puisses la voir de suite
-            const imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-            imgs.push(data.secure_url);
-            localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
+            const imgs = JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [];
+            imgs.push(base64Img);
+            localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(imgs));
             
-            alert("Photo envoyée ! Pour qu'elle soit visible par tous, ajoute son lien dans le code (IMAGES_PERMANENTES).");
             displayPortfolio();
-        } catch (err) { alert("Erreur d'envoi"); }
+        } catch (err) { alert("Erreur lors de l'ajout de l'image."); console.error(err); }
         finally { btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; }
     });
 
-    function displayPortfolio() {
-        // On mélange les images écrites dans le code + celles que tu as ajoutées en local
-        const imgsLocales = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
-        const toutesLesImgs = [...new Set([...IMAGES_PERMANENTES, ...imgsLocales])];
+    // Fonction utilitaire pour compresser l'image avant stockage
+    function compressImage(file, maxWidth, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const ratio = Math.min(maxWidth / img.width, 1);
+                    canvas.width = img.width * ratio;
+                    canvas.height = img.height * ratio;
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    }
 
-        document.getElementById('portfolioGrid').innerHTML = toutesLesImgs.map((url, i) => `
-            <div class="portfolio-item">
-                <img src="${url}">
-                ${isAdmin ? `<button class="btn-del" onclick="deleteImg(${i})">×</button>` : ''}
-            </div>
-        `).join('');
+    function openLightbox(url) {
+        const lb = document.getElementById('lightbox');
+        lb.innerHTML = `<img src="${url}" alt="Zoom">`;
+        lb.classList.add('active');
+    }
+
+    function displayPortfolio() {
+        const grid = document.getElementById('portfolioGrid');
+        const imgs = JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [];
+        
+        if (imgs.length === 0) {
+            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;">Aucune photo pour le moment.</p>';
+            return;
+        }
+
+        grid.innerHTML = imgs.map((url, i) => `
+            <div class="portfolio-item" onclick="openLightbox('${url.replace(/'/g, "\\'")}')">
+                <img src="${url}" loading="lazy" alt="Réalisation">
+                ${isAdmin ? `<button class="btn-del" onclick="event.stopPropagation(); deleteImg(${i})" aria-label="Supprimer l'image">×</button>` : ''}
+            </div>`
+        ).join('');
     }
 
     function deleteImg(i) {
-        // Note: Cela ne supprimera que tes photos locales. 
-        // Les photos dans IMAGES_PERMANENTES doivent être enlevées du code directement.
-        let imgs = JSON.parse(localStorage.getItem('mesPhotosCloud')) || [];
+        let imgs = JSON.parse(localStorage.getItem(STORAGE_KEY_IMG)) || [];
         imgs.splice(i, 1);
-        localStorage.setItem('mesPhotosCloud', JSON.stringify(imgs));
+        localStorage.setItem(STORAGE_KEY_IMG, JSON.stringify(imgs));
         displayPortfolio();
     }
 
@@ -202,7 +578,22 @@
         document.getElementById('themeToggle').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
     });
 
-    window.onload = () => displayPortfolio();
+    window.onload = () => {
+        displayPortfolio();
+        // On ne charge pas les RDV au démarrage pour sécurité, seulement après login admin
+
+        // Empêcher la sélection de dates passées dans le calendrier
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('rdvDate').min = now.toISOString().slice(0, 16);
+        checkTodayRdv();
+        loadHours();
+    };
+
+    // Service Worker Registration (à la fin pour la perf)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
 </script>
 </body>
 </html>
