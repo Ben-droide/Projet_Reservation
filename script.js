@@ -1,10 +1,6 @@
 // Stockage Local uniquement
 const STORAGE_KEY_IMG = 'reservaPro_portfolio';
 const STORAGE_KEY_RDV = 'reservaPro_rdv';
-const STORAGE_KEY_HOURS = 'reservaPro_hours';
-const STORAGE_KEY_LOGS = 'reservaPro_logs';
-const STORAGE_KEY_VACATION = 'reservaPro_vacation';
-const STORAGE_KEY_BLACKLIST = 'reservaPro_blacklist';
 const STORAGE_KEY_PRICES = 'reservaPro_prices';
 
 const DEFAULT_PRICES = {
@@ -32,7 +28,7 @@ function switchTab(t) {
 }
 
 // --- GESTION DES RDV (LOCAL) ---
-function handleBooking(e) {
+async function handleBooking(e) {
     e.preventDefault();
     const idInput = document.getElementById('rdvId');
     const isEdit = idInput.value !== '';
@@ -41,59 +37,53 @@ function handleBooking(e) {
     const service = document.getElementById('rdvService').value;
     const date = document.getElementById('rdvDate').value;
     const comment = document.getElementById('rdvComment').value;
+    const tags = Array.from(document.querySelectorAll('input[name="rdvTags"]:checked')).map(cb => cb.value);
 
-    // Vérification Mode Vacances
-    if (localStorage.getItem(STORAGE_KEY_VACATION) === 'true') {
-        alert("Le salon est actuellement fermé pour congés. Impossible de réserver.");
-        return;
-    }
-
-    // Vérification Blacklist
-    const blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
-    if (blacklist.includes(phone)) {
-        alert("⛔ Réservation impossible. Ce numéro est bloqué. Veuillez contacter l'établissement.");
-        return;
-    }
-
-    if (new Date(date) < new Date()) {
-        alert("Impossible de réserver une date dans le passé.");
-        return;
-    }
-
-    // Sécurité : Anti-Spam (1 minute entre chaque réservation)
-    const lastBook = localStorage.getItem('reservaPro_lastBook');
-    if (lastBook && (Date.now() - lastBook) < 60000) {
-        alert("Veuillez patienter quelques instants avant de reprendre rendez-vous.");
-        return;
-    }
-
-    const rdvTime = date.split('T')[1];
-    const hours = JSON.parse(localStorage.getItem(STORAGE_KEY_HOURS)) || { open: "09:00", close: "19:00" };
-    if (rdvTime < hours.open || rdvTime > hours.close) {
-        alert(`Désolé, le salon est ouvert uniquement de ${hours.open} à ${hours.close}.`);
-        return;
-    }
+    // Vérifications de sécurité centralisées
+    if (!await checkBookingSecurity(phone, date)) return;
 
     let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+
+    // --- LOGIQUE AUTO-TAGS (Fidélité) ---
+    // On compte l'historique de ce numéro (en excluant le RDV actuel si on est en train de le modifier)
+    const historyCount = rdvs.filter(r => r.phone === phone && (isEdit ? r.id !== parseInt(idInput.value) : true)).length;
+
+    if (historyCount === 0) {
+        // 1er RDV : Tag "Nouveau" automatique
+        if (!tags.includes('Nouveau')) tags.push('Nouveau');
+        // Nettoyage : ne peut pas être VIP
+        const idxVip = tags.indexOf('VIP');
+        if (idxVip > -1) tags.splice(idxVip, 1);
+    } else if (historyCount >= 2) {
+        // 3ème RDV ou plus : Tag "VIP" automatique
+        if (!tags.includes('VIP')) tags.push('VIP');
+        // Nettoyage : ne peut plus être Nouveau
+        const idxNew = tags.indexOf('Nouveau');
+        if (idxNew > -1) tags.splice(idxNew, 1);
+    } else {
+        // 2ème RDV : On retire le tag "Nouveau" automatiquement
+        const idxNew = tags.indexOf('Nouveau');
+        if (idxNew > -1) tags.splice(idxNew, 1);
+    }
 
     if (isEdit) {
         const id = parseInt(idInput.value);
         const index = rdvs.findIndex(r => r.id === id);
         if (index !== -1) {
-            rdvs[index] = { id, name, phone, service, date, comment };
-            alert("Rendez-vous modifié avec succès !");
+            rdvs[index] = { id, name, phone, service, date, comment, tags };
+            await customAlert("Rendez-vous modifié avec succès !");
             addLog('Modification RDV', `${name} (${date})`);
         }
     } else {
-        const newRdv = { id: Date.now(), name, phone, service, date, comment };
+        const newRdv = { id: Date.now(), name, phone, service, date, comment, tags };
         rdvs.push(newRdv);
         playNotificationSound();
-        alert(`Rendez-vous confirmé pour ${name} !\n(Note: Ceci est une démo locale)`);
+        await customAlert(`Rendez-vous confirmé pour ${name} !\n(Note: Ceci est une démo locale)`);
         addLog('Nouveau RDV', `${name} (${date})`);
     }
 
     localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
-    localStorage.setItem('reservaPro_lastBook', Date.now()); // Enregistrement du timestamp pour l'anti-spam
+    recordBookingSecurity(); // Enregistrement du timestamp pour l'anti-spam
     cancelEdit(); // Réinitialise le formulaire et le mode édition
     displayAdminRdv(); // Mise à jour immédiate si admin connecté
     checkTodayRdv();
@@ -175,30 +165,30 @@ function displayBlacklist() {
     `).join('');
 }
 
-function manualAddToBlacklist() {
+async function manualAddToBlacklist() {
     const input = document.getElementById('blacklistInput');
     if(input.value) {
-        addToBlacklist(input.value);
+        await addToBlacklist(input.value);
         input.value = '';
     }
 }
 
-function addToBlacklist(phone) {
+async function addToBlacklist(phone) {
     if(!phone) return;
-    if(!confirm(`Bannir le numéro ${phone} ?`)) return;
+    if(!await customConfirm(`Bannir le numéro ${phone} ?`)) return;
     
     let blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
     if(!blacklist.includes(phone)) {
         blacklist.push(phone);
         localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(blacklist));
         addLog('Sécurité', `Numéro banni : ${phone}`);
-        alert(`Le numéro ${phone} a été ajouté à la liste noire.`);
+        await customAlert(`Le numéro ${phone} a été ajouté à la liste noire.`);
         displayBlacklist();
-    } else { alert("Ce numéro est déjà banni."); }
+    } else { await customAlert("Ce numéro est déjà banni."); }
 }
 
-function removeFromBlacklist(phone) {
-    if(!confirm(`Débloquer le numéro ${phone} ?`)) return;
+async function removeFromBlacklist(phone) {
+    if(!await customConfirm(`Débloquer le numéro ${phone} ?`)) return;
     let blacklist = JSON.parse(localStorage.getItem(STORAGE_KEY_BLACKLIST)) || [];
     blacklist = blacklist.filter(p => p !== phone);
     localStorage.setItem(STORAGE_KEY_BLACKLIST, JSON.stringify(blacklist));
@@ -217,13 +207,49 @@ function renderPricingWidget() {
     `).join('');
 }
 
-function savePrices() {
+async function savePrices() {
     const inputs = document.querySelectorAll('.price-input');
     inputs.forEach(input => { prices[input.dataset.service] = parseFloat(input.value) || 0; });
     localStorage.setItem(STORAGE_KEY_PRICES, JSON.stringify(prices));
     addLog('Configuration', 'Tarifs mis à jour');
-    alert("Tarifs mis à jour avec succès !");
+    await customAlert("Tarifs mis à jour avec succès !");
     displayAdminRdv(); // Recalcul du CA
+}
+
+function renderRevenueChart() {
+    const container = document.getElementById('revenueChart');
+    if (!container) return;
+
+    const rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
+    const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const today = new Date();
+    const data = [];
+
+    // Génération des 7 derniers jours
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        
+        const dailyTotal = rdvs
+            .filter(r => r.date.split('T')[0] === dateStr)
+            .reduce((sum, r) => sum + (prices[r.service] || 0), 0);
+        
+        data.push({ label: days[d.getDay()], value: dailyTotal });
+    }
+
+    const maxVal = Math.max(...data.map(d => d.value), 10); // Éviter division par zéro
+
+    container.innerHTML = data.map(item => {
+        const height = (item.value / maxVal) * 100;
+        return `
+            <div class="chart-bar-wrapper">
+                <div class="chart-value">${item.value}€</div>
+                <div class="chart-bar" style="height: ${height}%"></div>
+                <div class="chart-label">${item.label}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 function displayAdminRdv() {
@@ -231,6 +257,7 @@ function displayAdminRdv() {
     const list = document.getElementById('adminRdvList');
     const statsContainer = document.getElementById('adminStats');
     const searchTerm = document.getElementById('rdvSearch').value.toLowerCase();
+    const vipOnly = document.getElementById('vipFilter').checked;
     let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
     
     // Calcul CA du jour
@@ -249,6 +276,7 @@ function displayAdminRdv() {
 
     displayLogs(); // Mise à jour des logs en même temps
     displayBlacklist();
+    renderRevenueChart(); // Mise à jour du graphique
     
     const maxVal = Math.max(...Object.values(stats), 1);
     
@@ -272,6 +300,10 @@ function displayAdminRdv() {
         rdvs = rdvs.filter(r => r.name.toLowerCase().includes(searchTerm));
     }
 
+    if (vipOnly) {
+        rdvs = rdvs.filter(r => (r.tags || []).includes('VIP'));
+    }
+
     if (rdvs.length === 0) {
         list.innerHTML = '<div class="empty-msg">Aucun rendez-vous trouvé.</div>';
         return;
@@ -281,8 +313,6 @@ function displayAdminRdv() {
     rdvs.sort((a,b) => new Date(a.date) - new Date(b.date));
 
     // Groupement par date
-    const now = new Date();
-    const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
     const groups = { today: [], future: [], past: [] };
 
     rdvs.forEach(rdv => {
@@ -296,10 +326,12 @@ function displayAdminRdv() {
     const renderRdv = (rdv) => {
         const dateFmt = new Date(rdv.date).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const smsBody = encodeURIComponent(`Bonjour ${rdv.name}, petit rappel pour votre rendez-vous le ${dateFmt}. À bientôt !`);
+        const tagsHtml = (rdv.tags || []).map(t => `<span class="tag tag-${t}">${t}</span>`).join('');
+        const vipIcon = (rdv.tags || []).includes('VIP') ? '👑 ' : '';
         return `
         <div class="rdv-item">
             <div class="rdv-info">
-                <h4>${escapeHtml(rdv.name)} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
+                <h4>${vipIcon}${escapeHtml(rdv.name)} ${tagsHtml} <span style="font-size:0.85rem; font-weight:normal; color:var(--primary);">(${escapeHtml(rdv.service)})</span></h4>
                 <p><i class="fa-regular fa-clock"></i> ${dateFmt}</p>
                 <p><i class="fa-solid fa-phone"></i> ${escapeHtml(rdv.phone)} <button onclick="addToBlacklist('${escapeHtml(rdv.phone)}')" class="btn-del" style="position:static; width:20px; height:20px; font-size:10px; background:var(--dark);" title="Bannir">🚫</button></p>
                 ${rdv.comment ? `<p style="font-style:italic; margin-top:5px; font-size:0.85rem; color:var(--text-main);">"${escapeHtml(rdv.comment)}"</p>` : ''}
@@ -315,9 +347,9 @@ function displayAdminRdv() {
 
     // Construction de l'affichage final
     let html = '';
-    if (groups.today.length) html += `<h4 style="color:var(--primary); margin:10px 0; border-bottom:1px solid var(--border); padding-bottom:5px;">Aujourd'hui</h4>` + groups.today.map(renderRdv).join('');
-    if (groups.future.length) html += `<h4 style="color:var(--text-main); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">À venir</h4>` + groups.future.map(renderRdv).join('');
-    if (groups.past.length) html += `<h4 style="color:var(--text-sub); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">Passés</h4>` + groups.past.map(renderRdv).join('');
+    if (groups.today.length) html += `<div class="rdv-group-today"><h4 style="color:var(--primary); margin:10px 0; border-bottom:1px solid var(--border); padding-bottom:5px;">Aujourd'hui</h4>` + groups.today.map(renderRdv).join('') + `</div>`;
+    if (groups.future.length) html += `<div class="rdv-group-future"><h4 style="color:var(--text-main); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">À venir</h4>` + groups.future.map(renderRdv).join('') + `</div>`;
+    if (groups.past.length) html += `<div class="rdv-group-past"><h4 style="color:var(--text-sub); margin:20px 0 10px; border-bottom:1px solid var(--border); padding-bottom:5px;">Passés</h4>` + groups.past.map(renderRdv).join('') + `</div>`;
     
     list.innerHTML = html;
 }
@@ -336,6 +368,15 @@ function editRdv(id) {
     document.getElementById('rdvService').value = rdv.service;
     document.getElementById('rdvDate').value = rdv.date;
     document.getElementById('rdvComment').value = rdv.comment || '';
+    
+    // Reset et chargement des tags
+    document.querySelectorAll('input[name="rdvTags"]').forEach(cb => cb.checked = false);
+    if (rdv.tags) {
+        rdv.tags.forEach(tag => {
+            const cb = document.querySelector(`input[name="rdvTags"][value="${tag}"]`);
+            if (cb) cb.checked = true;
+        });
+    }
 
     // Changement d'état de l'interface
     document.getElementById('btnSubmit').innerText = "Modifier le rendez-vous";
@@ -349,14 +390,15 @@ function cancelEdit() {
     document.getElementById('rdvId').value = '';
     document.getElementById('btnSubmit').innerText = "Confirmer la réservation";
     document.getElementById('btnCancelEdit').style.display = 'none';
+    document.querySelectorAll('input[name="rdvTags"]').forEach(cb => cb.checked = false);
 
     if (wasEditing && isAdmin) {
         switchTab('admin-panel');
     }
 }
 
-function deleteRdv(id) {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer ce rendez-vous ?")) return;
+async function deleteRdv(id) {
+    if (!await customConfirm("Êtes-vous sûr de vouloir supprimer ce rendez-vous ?")) return;
     let rdvs = JSON.parse(localStorage.getItem(STORAGE_KEY_RDV)) || [];
     rdvs = rdvs.filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEY_RDV, JSON.stringify(rdvs));
@@ -386,9 +428,9 @@ function checkTodayRdv() {
     }
 }
 
-function toggleVacationMode() {
+async function toggleVacationMode() {
     const current = localStorage.getItem(STORAGE_KEY_VACATION) === 'true';
-    if(!confirm(`Voulez-vous ${current ? 'désactiver' : 'activer'} le mode vacances ?`)) return;
+    if(!await customConfirm(`Voulez-vous ${current ? 'désactiver' : 'activer'} le mode vacances ?`)) return;
     
     localStorage.setItem(STORAGE_KEY_VACATION, !current);
     updateVacationUI();
@@ -425,14 +467,14 @@ function updateVacationUI() {
     }
 }
 
-function saveHours() {
+async function saveHours() {
     const open = document.getElementById('adminOpenTime').value;
     const close = document.getElementById('adminCloseTime').value;
-    if(!open || !close) return alert("Veuillez remplir les deux horaires.");
+    if(!open || !close) return await customAlert("Veuillez remplir les deux horaires.");
     
     localStorage.setItem(STORAGE_KEY_HOURS, JSON.stringify({ open, close }));
     addLog('Configuration', `Horaires : ${open} - ${close}`);
-    alert("Horaires mis à jour !");
+    await customAlert("Horaires mis à jour !");
     loadHours();
 }
 
@@ -476,11 +518,11 @@ function exportData() {
     addLog('Système', 'Backup téléchargé');
 }
 
-function importData(input) {
+async function importData(input) {
     const file = input.files[0];
     if (!file) return;
 
-    if (!confirm("⚠️ Attention : L'importation va ÉCRASER toutes les données actuelles (RDV et Portfolio). Voulez-vous continuer ?")) {
+    if (!await customConfirm("⚠️ Attention : L'importation va ÉCRASER toutes les données actuelles (RDV et Portfolio). Voulez-vous continuer ?")) {
         input.value = ''; // Reset pour permettre de ré-essayer
         return;
     }
@@ -502,7 +544,7 @@ function importData(input) {
                 prices = data.prices;
             }
             
-            alert("Données restaurées avec succès !");
+            customAlert("Données restaurées avec succès !");
             addLog('Système', 'Restauration effectuée');
             displayAdminRdv();
             displayPortfolio();
@@ -510,7 +552,7 @@ function importData(input) {
             updateVacationUI();
             displayBlacklist();
             renderPricingWidget();
-        } catch (err) { alert("Erreur d'importation : " + err.message); }
+        } catch (err) { customAlert("Erreur d'importation : " + err.message); }
         input.value = '';
     };
     reader.readAsText(file);
@@ -534,7 +576,7 @@ document.getElementById('imageInput').addEventListener('change', async function(
         
         addLog('Portfolio', 'Nouvelle photo ajoutée');
         displayPortfolio();
-    } catch (err) { alert("Erreur lors de l'ajout de l'image."); console.error(err); }
+    } catch (err) { await customAlert("Erreur lors de l'ajout de l'image."); console.error(err); }
     finally { btnLabel.innerHTML = '<i class="fa-solid fa-plus"></i> Ajouter une photo'; }
 });
 
@@ -612,7 +654,33 @@ window.onload = () => {
 
     // Attachement optimisé de l'événement de recherche
     document.getElementById('rdvSearch').addEventListener('input', debounce(() => displayAdminRdv(), 300));
+    document.getElementById('vipFilter').addEventListener('change', displayAdminRdv);
+
+    // Back to Top Logic
+    const btnBackToTop = document.getElementById('btnBackToTop');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) btnBackToTop.classList.add('show');
+        else btnBackToTop.classList.remove('show');
+    });
+    btnBackToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Splash Screen
+    setTimeout(() => {
+        document.getElementById('splash-screen').classList.add('hidden');
+    }, 2000);
+
+    // Gestion du nettoyage après impression
+    window.addEventListener('afterprint', () => {
+        document.body.classList.remove('print-day-only');
+    });
 };
+
+function printDayPlanning() {
+    document.body.classList.add('print-day-only');
+    window.print();
+}
 
 // Service Worker Registration (à la fin pour la perf)
 if ('serviceWorker' in navigator) {

@@ -43,6 +43,9 @@ Contrairement aux solutions classiques (Calendly, Planity), **ReservaPro** a ét
 * **Blacklist** : Possibilité de bannir des numéros de téléphone pour empêcher les réservations indésirables.
 * **Suivi CA** : Calcul automatique et affichage du chiffre d'affaires estimé de la journée dans le tableau de bord.
 * **Tarifs Dynamiques** : Configuration des prix des prestations directement depuis l'interface d'administration.
+* **Tags Clients** : Catégorisation visuelle des clients (VIP, Nouveau, Retardataire) visible uniquement par l'admin.
+* **Interface Authentification** : Mire de connexion sécurisée et stylisée (Modal) remplaçant les alertes navigateur.
+* **Feedback Sonore Login** : Effets sonores "Access Granted" et "Access Denied" lors de la connexion administrateur.
 
 ---
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reservapro-v25';
+const CACHE_NAME = 'reservapro-v49';
 const ASSETS = [
   './',
   'index.html',
@@ -7,7 +7,7 @@ const ASSETS = [
   'script.js',
   'manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap',
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap',
   'https://res.cloudinary.com/dkfbcedvr/image/upload/v1770047092/bdfqj2q5ntyfphrxk1bs.png',
   'https://res.cloudinary.com/dkfbcedvr/image/upload/v1770045309/main-sample.png'
 ];
